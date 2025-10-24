@@ -1,0 +1,9 @@
+﻿bench,points,wall_ms,iterations
+lidar_processing,50000,600501.659,1
+lidar_processing,50000,1378816.946,1
+lidar_processing,50000,1758667.030,1
+lidar_processing,50000,1148518.839,1
+lidar_processing,50000,751396.592,1
+lidar_processing,100000,3033869.958,1
+lidar_processing,100000,3602825.603,1
+lidar_processing,100000,5724616.722,1

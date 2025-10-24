@@ -35,10 +35,10 @@ case "$cmd" in
     echo "Report written to report/REPORT.md"
     ;;
   all)
-    $0 build
-    $0 run
-    $0 analyze
-    $0 report
+"$ROOT/run.sh" build
+"$ROOT/run.sh" run
+"$ROOT/run.sh" analyze
+"$ROOT/run.sh" report
     ;;
   *)
     echo "Usage: $0 [build|run|analyze|report|all]"; exit 1;;

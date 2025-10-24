@@ -1,5 +1,5 @@
 import os, time, argparse, random
-def write_read(path, size_kb=64, count=200):
+def write_read(path, size_kb=64, count=20):  # Reduced for home computer compatibility
     data = os.urandom(size_kb*1024)
     t0 = time.perf_counter()
     for i in range(count):
@@ -16,7 +16,7 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--dir", default="./tmpio")
     ap.add_argument("--block_kb", type=int, default=64)
-    ap.add_argument("--count", type=int, default=200)
+    ap.add_argument("--count", type=int, default=20)  # Reduced for home computer compatibility
     args = ap.parse_args()
     os.makedirs(args.dir, exist_ok=True)
     ms = write_read(args.dir, args.block_kb, args.count)

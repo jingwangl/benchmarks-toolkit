@@ -13,7 +13,7 @@ static long long work(int n){
 }
 
 int main(int argc, char** argv){
-    int iterations = 2000000;
+    int iterations = 200000;  // Reduced for home computer compatibility
     int threads = 1;
     if(argc >= 2) iterations = atoi(argv[1]);
     if(argc >= 3) threads = atoi(argv[2]);

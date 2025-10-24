@@ -1,0 +1,56 @@
+{
+    "project": {
+        "name": "Autonomous Vehicle Performance Analysis Toolkit",
+        "version": "1.0.0",
+        "description": "Comprehensive benchmarking toolkit for autonomous vehicle systems"
+    },
+    "benchmarks": {
+        "cpp_compute": {
+            "description": "CPU-intensive computational workload analysis",
+            "parameters": {
+                "optimization_levels": ["O2", "O3"],
+                "thread_counts": [1, 4, 8],
+                "iterations": 200000
+            },
+            "metrics": ["wall_time_ms", "throughput"]
+        },
+        "py_io": {
+            "description": "Storage subsystem I/O performance analysis",
+            "parameters": {
+                "block_sizes_kb": [4, 64, 512],
+                "operation_count": 20,
+                "iterations": 3
+            },
+            "metrics": ["wall_time_ms", "io_throughput"]
+        },
+        "lidar_processing": {
+            "description": "LiDAR point cloud processing simulation",
+            "parameters": {
+                "point_cloud_sizes": [5000, 10000, 20000, 50000],
+                "iterations": 3
+            },
+            "metrics": ["wall_time_ms", "processing_efficiency"]
+        }
+    },
+    "analysis": {
+        "statistical_metrics": ["p50", "p95", "p99", "mean"],
+        "visualization": {
+            "figure_size": [10, 6],
+            "dpi": 100,
+            "grid": true,
+            "markers": true
+        }
+    },
+    "reporting": {
+        "output_formats": ["markdown", "html"],
+        "include_environment": true,
+        "include_raw_data": false,
+        "chart_types": ["line", "bar"]
+    },
+    "environment": {
+        "capture_system_info": true,
+        "capture_cpu_info": true,
+        "capture_memory_info": true,
+        "capture_disk_info": true
+    }
+}
