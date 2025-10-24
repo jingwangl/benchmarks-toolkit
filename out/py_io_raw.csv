@@ -1,0 +1,10 @@
+bench,block_kb,wall_ms,count
+py_io,4,,100
+py_io,4,,100
+py_io,4,,100
+py_io,64,,100
+py_io,64,,100
+py_io,64,,100
+py_io,512,,100
+py_io,512,,100
+py_io,512,,100
