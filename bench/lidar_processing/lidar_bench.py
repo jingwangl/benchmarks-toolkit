@@ -1,6 +1,6 @@
 """
-Autonomous Vehicle Sensor Data Processing Benchmark
-Simulates real-time processing of LiDAR point cloud data
+自动驾驶车辆传感器数据处理基准测试
+模拟LiDAR点云数据的实时处理
 """
 
 import numpy as np
@@ -207,27 +207,27 @@ def run_benchmark(num_points: int, iterations: int, use_parallel: bool = True) -
 
 
 def main():
-    """Main entry point for LiDAR benchmark."""
-    parser = argparse.ArgumentParser(description="LiDAR Point Cloud Processing Benchmark")
+    """LiDAR基准测试的主入口点。"""
+    parser = argparse.ArgumentParser(description="LiDAR点云处理基准测试")
     parser.add_argument("--points", type=int, default=100000,
-                       help="Number of points in point cloud")
+                       help="点云中的点数")
     parser.add_argument("--iterations", type=int, default=10,
-                       help="Number of iterations to run")
+                       help="运行的迭代次数")
     parser.add_argument("--output", default="lidar_results.csv",
-                       help="Output CSV file")
+                       help="输出CSV文件")
     parser.add_argument("--quiet", action="store_true",
-                       help="Suppress detailed output, only show CSV")
+                       help="抑制详细输出，仅显示CSV")
     parser.add_argument("--parallel", action="store_true", default=True,
-                       help="Use parallel processing (default: True)")
+                       help="使用并行处理（默认：True）")
     
     args = parser.parse_args()
     
-    print(f"Running LiDAR benchmark with {args.points} points, {args.iterations} iterations...")
+    print(f"正在运行LiDAR基准测试，点云大小：{args.points}点，迭代次数：{args.iterations}...")
     
-    # Run benchmark
+        # 运行基准测试
     results = run_benchmark(args.points, args.iterations, args.parallel)
     
-    # Calculate statistics
+    # 计算统计信息
     total_times = [r['total_time_ms'] for r in results]
     generation_times = [r['generation_time_ms'] for r in results]
     filtering_times = [r['filtering_time_ms'] for r in results]
@@ -235,27 +235,27 @@ def main():
     bbox_times = [r['bbox_time_ms'] for r in results]
     
     if not args.quiet:
-        # Print results
-        print(f"\nBenchmark Results:")
-        print(f"Total Processing Time: {np.mean(total_times):.3f}ms ± {np.std(total_times):.3f}ms")
-        print(f"Point Generation: {np.mean(generation_times):.3f}ms ± {np.std(generation_times):.3f}ms")
-        print(f"Ground Filtering: {np.mean(filtering_times):.3f}ms ± {np.std(filtering_times):.3f}ms")
-        print(f"Clustering: {np.mean(clustering_times):.3f}ms ± {np.std(clustering_times):.3f}ms")
-        print(f"Bounding Boxes: {np.mean(bbox_times):.3f}ms ± {np.std(bbox_times):.3f}ms")
+        # 打印结果
+        print(f"\n基准测试结果：")
+        print(f"总处理时间：{np.mean(total_times):.3f}ms ± {np.std(total_times):.3f}ms")
+        print(f"点云生成：{np.mean(generation_times):.3f}ms ± {np.std(generation_times):.3f}ms")
+        print(f"地面过滤：{np.mean(filtering_times):.3f}ms ± {np.std(filtering_times):.3f}ms")
+        print(f"聚类处理：{np.mean(clustering_times):.3f}ms ± {np.std(clustering_times):.3f}ms")
+        print(f"边界框计算：{np.mean(bbox_times):.3f}ms ± {np.std(bbox_times):.3f}ms")
         
-        # Save detailed results
+        # 保存详细结果
         import pandas as pd
         df = pd.DataFrame(results)
         df.to_csv(args.output, index=False)
-        print(f"\nDetailed results saved to {args.output}")
+        print(f"\n详细结果已保存到 {args.output}")
         
-        # Print performance metrics in CSV format for integration
-        print(f"\nCSV Output:")
+        # 以CSV格式打印性能指标用于集成
+        print(f"\nCSV输出：")
         print(f"bench,points,wall_ms,iterations")
         for result in results:
             print(f"lidar_processing,{args.points},{result['total_time_ms']:.3f},{args.iterations}")
     else:
-        # Quiet mode: only output CSV data (no header)
+        # 安静模式：仅输出CSV数据（无标题）
         for result in results:
             print(f"lidar_processing,{args.points},{result['total_time_ms']:.3f},{args.iterations}")
 

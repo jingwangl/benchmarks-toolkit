@@ -1,240 +1,250 @@
-# Autonomous Vehicle Performance Analysis Toolkit
+# 自动驾驶车辆性能分析工具包
 
-## Project Overview
+## 项目概述
 
-This toolkit demonstrates advanced performance analysis capabilities specifically designed for autonomous vehicle systems. It showcases professional-grade benchmarking, statistical analysis, and visualization techniques that are essential for optimizing real-time automotive applications.
+该工具包展示了专为自动驾驶车辆系统设计的高级性能分析能力。它展示了专业级基准测试、统计分析和可视化技术，这些技术对于优化实时汽车应用至关重要。
 
-## Key Features
+## 主要功能
 
-### 🚗 Autonomous Vehicle Focus
-- **LiDAR Processing Simulation**: Realistic point cloud data processing benchmark
-- **Real-time Performance Analysis**: Sub-millisecond timing precision
-- **Sensor Data Workloads**: Computational requirements for perception systems
+### 🚗 自动驾驶车辆重点
+- **LiDAR处理模拟**：真实的点云数据处理基准测试
+- **实时性能分析**：亚毫秒级时间精度
+- **传感器数据工作负载**：感知系统的计算需求
 
-### 📊 Professional Analysis
-- **Statistical Metrics**: P50, P95, P99 percentiles with confidence intervals
-- **Multi-dimensional Analysis**: Thread scaling, optimization levels, block sizes
-- **Performance Regression Detection**: Automated comparison and trend analysis
+### 📊 专业分析
+- **统计指标**：P50、P95、P99百分位数及置信区间
+- **多维分析**：线程扩展、优化级别、块大小
+- **性能回归检测**：自动化比较和趋势分析
 
-### 🎨 Enterprise-Grade Visualizations
-- **Publication-Ready Charts**: Professional styling and formatting
-- **Interactive Dashboards**: Multiple chart types and comparison views
-- **Automated Report Generation**: Comprehensive analysis with recommendations
+### 🎨 企业级可视化
+- **发表级图表**：专业样式和格式
+- **交互式仪表板**：多种图表类型和比较视图
+- **自动化报告生成**：带建议的综合分析
 
-### ⚙️ Production-Ready Architecture
-- **Modular Design**: Extensible benchmark framework
-- **Configuration Management**: JSON-based parameter control
-- **Cross-Platform Support**: Windows PowerShell and Linux Bash compatibility
-- **Error Handling**: Robust error management and validation
+### ⚙️ 生产就绪架构
+- **模块化设计**：可扩展的基准测试框架
+- **配置管理**：基于JSON的参数控制
+- **跨平台支持**：Windows PowerShell和Linux Bash兼容性
+- **错误处理**：强大的错误管理和验证
 
-## Technical Architecture
+## 技术架构
 
-### Benchmark Suites
+### 基准测试套件
 
-#### 1. Computational Performance (`bench/cpp_compute/`)
-- **Purpose**: CPU-intensive workload analysis for perception algorithms
-- **Parameters**: 
-  - Compiler optimization levels (O2, O3)
-  - Thread scaling (1, 4, 8 cores)
-  - Iteration counts for statistical significance
-- **Metrics**: Execution time, throughput, scalability efficiency
+#### 1. 计算性能（`bench/cpp_compute/`）
+- **目的**：自动驾驶感知和控制算法的CPU密集型工作负载分析
+- **应用场景**：
+  - 计算机视觉算法性能优化（目标检测、语义分割、特征提取）
+  - 传感器融合计算性能评估（多传感器数据融合）
+  - 实时路径规划和控制算法性能测试
+  - 深度学习推理性能分析
+- **参数**：
+  - 编译器优化级别（O2、O3）- 影响实时性能的关键因素
+  - 线程扩展（1、4、8核心）- 多核并行处理能力评估
+  - 统计显著性的迭代次数 - 确保性能测量的可靠性
+- **指标**：执行时间、吞吐量、可扩展性效率
 
-#### 2. I/O Performance (`bench/py_io/`)
-- **Purpose**: Storage subsystem analysis for sensor data logging
-- **Parameters**:
-  - Block sizes (4KB, 64KB, 512KB)
-  - Sequential read/write operations
-  - Multiple iterations for reliability
-- **Metrics**: Latency, throughput, I/O efficiency
+#### 2. I/O性能（`bench/py_io/`）
+- **目的**：自动驾驶数据存储和传输子系统分析
+- **应用场景**：
+  - 传感器数据记录性能（摄像头、雷达、LiDAR数据实时存储）
+  - 高精度地图数据加载性能测试
+  - 车辆日志系统I/O性能评估
+  - 数据回放和分析系统的存储性能
+- **参数**：
+  - 块大小（4KB、64KB、512KB）- 不同数据类型的存储优化策略
+  - 顺序读写操作 - 模拟实际数据流模式
+  - 多次迭代以确保可靠性 - 统计显著性验证
+- **指标**：延迟、吞吐量、I/O效率
 
-#### 3. LiDAR Processing (`bench/lidar_processing/`)
-- **Purpose**: Real-time point cloud processing simulation
-- **Parameters**:
-  - Point cloud sizes (50K, 100K, 200K, 500K points)
-  - Processing pipeline stages
-  - Object detection and clustering
-- **Metrics**: End-to-end processing time, stage-wise breakdown
+#### 3. LiDAR处理（`bench/lidar_processing/`）
+- **目的**：实时点云处理模拟
+- **参数**：
+  - 点云大小（5K、10K、20K、50K点）
+  - 处理流水线阶段
+  - 目标检测和聚类
+- **指标**：端到端处理时间、分阶段分解
 
-### Analysis Framework
+### 分析框架
 
-#### Statistical Engine (`analyze/parse.py`)
-- **Data Validation**: Input validation and error detection
-- **Aggregation**: Multi-dimensional grouping and statistics
-- **Metrics Calculation**: Percentile analysis and trend detection
-- **Quality Assurance**: Data integrity and consistency checks
+#### 统计引擎（`analyze/parse.py`）
+- **数据验证**：输入验证和错误检测
+- **聚合**：多维分组和统计
+- **指标计算**：百分位数分析和趋势检测
+- **质量保证**：数据完整性和一致性检查
 
-#### Visualization Engine (`analyze/plot.py`)
-- **Professional Styling**: Enterprise-grade chart formatting
-- **Multiple Chart Types**: Line plots, bar charts, comparison views
-- **Color Schemes**: Accessibility-compliant color palettes
-- **Performance Insights**: Automated annotation and analysis
+#### 可视化引擎（`analyze/plot.py`）
+- **专业样式**：企业级图表格式
+- **多种图表类型**：线图、条形图、比较视图
+- **配色方案**：符合可访问性的调色板
+- **性能洞察**：自动化注释和分析
 
-#### Report Generator (`analyze/report_generator.py`)
-- **Executive Summary**: High-level performance overview
-- **Technical Details**: Detailed analysis and methodology
-- **Recommendations**: Actionable optimization suggestions
-- **Methodology**: Reproducible analysis documentation
+#### 报告生成器（`analyze/report_generator.py`）
+- **执行摘要**：高级性能概述
+- **技术细节**：详细分析和方法论
+- **建议**：可操作的优化建议
+- **方法论**：可重现的分析文档
 
-## Performance Metrics
+## 性能指标
 
-### Computational Benchmarks
-- **Latency Analysis**: P50, P95, P99 execution times
-- **Throughput Metrics**: Operations per second, efficiency ratios
-- **Scalability Analysis**: Thread scaling efficiency, optimization impact
-- **Resource Utilization**: CPU usage patterns and bottlenecks
+### 计算基准测试
+- **延迟分析**：P50、P95、P99执行时间
+- **吞吐量指标**：每秒操作数、效率比率
+- **可扩展性分析**：线程扩展效率、优化影响
+- **资源利用率**：CPU使用模式和瓶颈
 
-### I/O Benchmarks
-- **Latency Distribution**: Block size impact on response times
-- **Throughput Analysis**: Data transfer rates and efficiency
-- **Storage Performance**: Sequential vs. random access patterns
-- **System Impact**: I/O wait times and resource contention
+### I/O基准测试
+- **延迟分布**：块大小对响应时间的影响
+- **吞吐量分析**：数据传输速率和效率
+- **存储性能**：顺序与随机访问模式
+- **系统影响**：I/O等待时间和资源争用
 
-### LiDAR Processing
-- **End-to-End Timing**: Complete pipeline processing time
-- **Stage Breakdown**: Generation, filtering, clustering, bounding boxes
-- **Scalability Analysis**: Performance vs. point cloud size
-- **Object Detection**: Cluster count and processing efficiency
+### LiDAR处理
+- **端到端时间**：完整流水线处理时间
+- **阶段分解**：生成、过滤、聚类、边界框
+- **可扩展性分析**：性能与点云大小的关系
+- **目标检测**：聚类数量和处理效率
 
-## Use Cases in Autonomous Vehicles
+## 自动驾驶车辆中的使用场景
 
-### 1. Sensor Data Processing
-- **LiDAR Point Clouds**: Real-time processing requirements
-- **Camera Image Processing**: Computer vision algorithm optimization
-- **Radar Signal Processing**: Signal processing pipeline analysis
-- **Sensor Fusion**: Multi-sensor data integration performance
+### 1. 传感器数据处理
+- **LiDAR点云**：实时处理需求
+- **摄像头图像处理**：计算机视觉算法优化
+- **雷达信号处理**：信号处理流水线分析
+- **传感器融合**：多传感器数据集成性能
 
-### 2. Real-time System Optimization
-- **Latency Requirements**: Meeting real-time constraints
-- **Resource Planning**: Hardware capacity planning
-- **Bottleneck Identification**: Performance-critical component analysis
-- **System Integration**: End-to-end performance validation
+### 2. 实时系统优化
+- **延迟需求**：满足实时约束
+- **资源规划**：硬件容量规划
+- **瓶颈识别**：性能关键组件分析
+- **系统集成**：端到端性能验证
 
-### 3. Development and Testing
-- **Performance Regression**: Continuous performance monitoring
-- **Hardware Evaluation**: Platform comparison and selection
-- **Algorithm Optimization**: Performance-driven development
-- **Quality Assurance**: Automated performance validation
+### 3. 开发和测试
+- **性能回归**：持续性能监控
+- **硬件评估**：平台比较和选择
+- **算法优化**：性能驱动的开发
+- **质量保证**：自动化性能验证
 
-### 4. Production Deployment
-- **Performance Monitoring**: Real-time system health tracking
-- **Capacity Planning**: Resource scaling and optimization
-- **Troubleshooting**: Performance issue diagnosis
-- **Optimization**: Data-driven system improvements
+### 4. 生产部署
+- **性能监控**：实时系统健康跟踪
+- **容量规划**：资源扩展和优化
+- **故障排除**：性能问题诊断
+- **优化**：数据驱动的系统改进
 
-## Technical Implementation
+## 技术实现
 
-### Configuration Management
-- **JSON Configuration**: Centralized parameter management
-- **Environment Detection**: Automatic platform-specific settings
-- **Validation**: Configuration integrity and consistency checks
-- **Extensibility**: Easy addition of new benchmarks and parameters
+### 配置管理
+- **JSON配置**：集中式参数管理
+- **环境检测**：自动平台特定设置
+- **验证**：配置完整性和一致性检查
+- **可扩展性**：轻松添加新基准测试和参数
 
-### Data Pipeline
-- **Raw Data Collection**: High-precision timing measurements
-- **Statistical Processing**: Robust statistical analysis
-- **Visualization Generation**: Automated chart creation
-- **Report Assembly**: Comprehensive documentation generation
+### 数据流水线
+- **原始数据收集**：高精度时间测量
+- **统计处理**：强大的统计分析
+- **可视化生成**：自动化图表创建
+- **报告组装**：综合文档生成
 
-### Quality Assurance
-- **Input Validation**: Data integrity and format checking
-- **Error Handling**: Graceful failure and recovery
-- **Logging**: Comprehensive execution tracking
-- **Testing**: Automated validation and regression testing
+### 质量保证
+- **输入验证**：数据完整性和格式检查
+- **错误处理**：优雅的失败和恢复
+- **日志记录**：综合执行跟踪
+- **测试**：自动化验证和回归测试
 
-## Professional Features
+## 专业功能
 
-### Enterprise-Grade Reporting
-- **Executive Summaries**: High-level performance insights
-- **Technical Documentation**: Detailed methodology and results
-- **Visual Dashboards**: Interactive performance visualizations
-- **Recommendation Engine**: Automated optimization suggestions
+### 企业级报告
+- **执行摘要**：高级性能洞察
+- **技术文档**：详细的方法论和结果
+- **可视化仪表板**：交互式性能可视化
+- **建议引擎**：自动化优化建议
 
-### Scalability and Extensibility
-- **Modular Architecture**: Easy addition of new benchmarks
-- **Plugin System**: Extensible analysis and visualization
-- **API Integration**: Programmatic access to analysis results
-- **CI/CD Integration**: Automated performance validation
+### 可扩展性和可扩展性
+- **模块化架构**：轻松添加新基准测试
+- **插件系统**：可扩展的分析和可视化
+- **API集成**：程序化访问分析结果
+- **CI/CD集成**：自动化性能验证
 
-### Cross-Platform Compatibility
-- **Windows Support**: PowerShell-based execution
-- **Linux Support**: Bash script compatibility
-- **Docker Support**: Containerized deployment
-- **Cloud Integration**: Scalable cloud-based execution
+### 跨平台兼容性
+- **Windows支持**：基于PowerShell的执行
+- **Linux支持**：Bash脚本兼容性
+- **Docker支持**：容器化部署
+- **云集成**：可扩展的基于云的执行
 
-## Getting Started
+## 开始使用
 
-### Prerequisites
-- Python 3.8+ with pandas, matplotlib, numpy, seaborn
-- C++ compiler (g++ or MSVC)
-- PowerShell (Windows) or Bash (Linux/macOS)
+### 前置要求
+- Python 3.8+ 及pandas、matplotlib、numpy、seaborn
+- C++编译器（g++或MSVC）
+- PowerShell（Windows）或Bash（Linux/macOS）
 
-### Quick Start
+### 快速开始
 ```bash
-# Clone and setup
+# 克隆和设置
 git clone <repository-url>
 cd benchmarks-toolkit
 pip install -r requirements.txt
 
-# Run complete analysis
+# 运行完整分析
 python demo.py
 
-# Or run manually
+# 或手动运行
 powershell -ExecutionPolicy Bypass -File run.ps1 all  # Windows
 bash run.sh all  # Linux/macOS
 ```
 
-### Customization
-- Modify `config/config.json` for parameter adjustment
-- Add new benchmarks in `bench/` directory
-- Extend analysis in `analyze/` modules
-- Customize visualizations in plotting engine
+### 自定义
+- 修改`config/config.json`以调整参数
+- 在`bench/`目录中添加新基准测试
+- 在`analyze/`模块中扩展分析
+- 在绘图引擎中自定义可视化
 
-## Results and Output
+## 结果和输出
 
-### Generated Files
-- **Raw Data**: `out/*_raw.csv` - Detailed measurements
-- **Processed Metrics**: `out/metrics.csv` - Statistical summaries
-- **Visualizations**: `report/figs/*.png` - Professional charts
-- **Comprehensive Report**: `report/REPORT.md` - Complete analysis
+### 生成的文件
+- **原始数据**：`out/*_raw.csv` - 详细测量
+- **处理指标**：`out/metrics.csv` - 统计摘要
+- **可视化**：`report/figs/*.png` - 专业图表
+- **综合报告**：`report/REPORT.md` - 完整分析
 
-### Analysis Insights
-- **Performance Baselines**: Established performance benchmarks
-- **Optimization Opportunities**: Identified improvement areas
-- **Resource Requirements**: Hardware planning guidance
-- **Trend Analysis**: Performance evolution tracking
+### 分析洞察
+- **性能基线**：建立的性能基准
+- **优化机会**：识别的改进领域
+- **资源需求**：硬件规划指导
+- **趋势分析**：性能演进跟踪
 
-## Future Enhancements
+## 未来增强
 
-### Phase 1: Advanced Analytics
-- **Machine Learning Integration**: Predictive performance modeling
-- **Anomaly Detection**: Automated performance issue identification
-- **Trend Analysis**: Long-term performance evolution tracking
-- **Comparative Analysis**: Cross-platform performance comparison
+### 第一阶段：高级分析
+- **机器学习集成**：预测性能建模
+- **异常检测**：自动化性能问题识别
+- **趋势分析**：长期性能演进跟踪
+- **比较分析**：跨平台性能比较
 
-### Phase 2: Autonomous Vehicle Focus
-- **ROS2 Integration**: Real-time system performance monitoring
-- **Sensor Simulation**: Comprehensive sensor data processing
-- **Real-time Constraints**: Hard real-time performance validation
-- **Safety-Critical Analysis**: Functional safety performance requirements
+### 第二阶段：自动驾驶车辆重点
+- **ROS2集成**：实时系统性能监控
+- **传感器模拟**：综合传感器数据处理
+- **实时约束**：硬实时性能验证
+- **安全关键分析**：功能安全性能需求
 
-### Phase 3: Enterprise Features
-- **Cloud Integration**: Scalable cloud-based analysis
-- **API Development**: RESTful API for programmatic access
-- **Dashboard Creation**: Real-time performance monitoring
-- **Integration Tools**: CI/CD and development workflow integration
+### 第三阶段：企业功能
+- **云集成**：可扩展的基于云的分析
+- **API开发**：程序化访问的RESTful API
+- **仪表板创建**：实时性能监控
+- **集成工具**：CI/CD和开发工作流集成
 
-## Conclusion
+## 结论
 
-This toolkit demonstrates professional-grade performance analysis capabilities essential for autonomous vehicle development. It showcases:
+该工具包展示了自动驾驶车辆开发中必不可少的专业级性能分析能力。它展示了：
 
-- **Technical Expertise**: Advanced statistical analysis and visualization
-- **Domain Knowledge**: Understanding of autonomous vehicle performance requirements
-- **Professional Practices**: Enterprise-grade software development and documentation
-- **Practical Application**: Real-world performance optimization techniques
+- **技术专长**：高级统计分析和可视化
+- **领域知识**：对自动驾驶车辆性能需求的理解
+- **专业实践**：企业级软件开发和文档
+- **实际应用**：现实世界的性能优化技术
 
-The toolkit serves as a foundation for comprehensive performance analysis in autonomous vehicle systems, providing the tools and methodologies necessary for optimizing real-time, safety-critical applications.
+该工具包作为自动驾驶车辆系统中综合性能分析的基础，提供了优化实时、安全关键应用所需的工具和方法论。
 
 ---
 
-**Created for**: Autonomous Vehicle Performance Analyst Position  
-**Focus**: Advanced performance analysis, system optimization, and professional software development
+**创建目的**：自动驾驶车辆性能分析师职位  
+**重点**：高级性能分析、系统优化和专业软件开发

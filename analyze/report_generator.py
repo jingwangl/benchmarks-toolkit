@@ -1,6 +1,6 @@
 """
-Professional report generation for performance analysis results.
-Part of the Autonomous Vehicle Performance Analysis Toolkit.
+性能分析结果的专业报告生成。
+自动驾驶车辆性能分析工具包的一部分。
 """
 
 import os

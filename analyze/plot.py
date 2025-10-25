@@ -1,6 +1,6 @@
 """
-Advanced visualization and chart generation for performance benchmarks.
-Part of the Autonomous Vehicle Performance Analysis Toolkit.
+性能基准测试的高级可视化和图表生成。
+自动驾驶车辆性能分析工具包的一部分。
 """
 
 import argparse
@@ -18,8 +18,15 @@ sys.path.append(str(Path(__file__).parent.parent / "config"))
 from config_manager import get_config
 
 # Set professional matplotlib style
-plt.style.use('seaborn-v0_8')
-mplstyle.use(['seaborn-v0_8', 'seaborn-v0_8-paper'])
+try:
+    plt.style.use('seaborn-v0_8')
+    mplstyle.use(['seaborn-v0_8', 'seaborn-v0_8-paper'])
+except OSError:
+    # Fallback to available styles if seaborn-v0_8 is not available
+    try:
+        plt.style.use('seaborn')
+    except OSError:
+        plt.style.use('default')
 
 
 class PerformanceVisualizer:
@@ -227,7 +234,7 @@ class PerformanceVisualizer:
         return filepath
     
     def create_comparison_plot(self, df: pd.DataFrame, output_dir: str) -> str:
-        """Create a comparison plot showing both benchmarks.
+        """Create a comparison plot showing all benchmarks.
         
         Args:
             df: Combined DataFrame with all benchmark data
@@ -236,46 +243,92 @@ class PerformanceVisualizer:
         Returns:
             Path to saved plot file
         """
-        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
+        # Create subplots based on available benchmarks
+        benchmarks = df['bench'].unique()
+        num_benchmarks = len(benchmarks)
+        
+        if num_benchmarks == 1:
+            fig, ax1 = plt.subplots(1, 1, figsize=(8, 6))
+            axes = [ax1]
+        elif num_benchmarks == 2:
+            fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
+            axes = [ax1, ax2]
+        else:  # 3 or more benchmarks
+            fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(24, 6))
+            axes = [ax1, ax2, ax3]
+        
+        # Process each benchmark dynamically
+        ax_idx = 0
         
         # C++ Compute subplot
-        cpp_data = df[df['bench'] == 'cpp_compute']
-        if not cpp_data.empty:
-            cpp_p95_data = cpp_data[cpp_data['level_4'] == 'p95']
-            if not cpp_p95_data.empty:
-                optimization_levels = cpp_p95_data['config'].unique()
-                color_idx = 0
-                
-                for opt_level in optimization_levels:
-                    opt_data = cpp_p95_data[cpp_p95_data['config'] == opt_level].sort_values('threads')
-                    color = list(self.colors.values())[color_idx % len(self.colors)]
+        if 'cpp_compute' in benchmarks and ax_idx < len(axes):
+            cpp_data = df[df['bench'] == 'cpp_compute']
+            if not cpp_data.empty:
+                cpp_p95_data = cpp_data[cpp_data['level_4'] == 'p95']
+                if not cpp_p95_data.empty:
+                    optimization_levels = cpp_p95_data['config'].unique()
+                    color_idx = 0
                     
-                    ax1.plot(opt_data['threads'], opt_data['wall_ms'], 
-                            color=color, marker='o', linewidth=2, markersize=6,
-                            label=f'{opt_level} Optimization')
-                    color_idx += 1
-            
-            ax1.set_xlabel('Threads')
-            ax1.set_ylabel('P95 Latency (ms)')
-            ax1.set_title('C++ Computational Performance')
-            ax1.legend()
-            ax1.grid(True, alpha=0.3)
+                    for opt_level in optimization_levels:
+                        opt_data = cpp_p95_data[cpp_p95_data['config'] == opt_level].sort_values('threads')
+                        color = list(self.colors.values())[color_idx % len(self.colors)]
+                        
+                        axes[ax_idx].plot(opt_data['threads'], opt_data['wall_ms'], 
+                                color=color, marker='o', linewidth=2, markersize=6,
+                                label=f'{opt_level} Optimization')
+                        color_idx += 1
+                
+                axes[ax_idx].set_xlabel('Threads')
+                axes[ax_idx].set_ylabel('P95 Latency (ms)')
+                axes[ax_idx].set_title('C++ Computational Performance')
+                axes[ax_idx].legend()
+                axes[ax_idx].grid(True, alpha=0.3)
+            ax_idx += 1
         
         # Python I/O subplot
-        py_data = df[df['bench'] == 'py_io']
-        if not py_data.empty:
-            py_p95_data = py_data[py_data['level_4'] == 'p95']
-            if not py_p95_data.empty:
-                py_p95_sorted = py_p95_data.sort_values('block_kb')
-                bars = ax2.bar(range(len(py_p95_sorted)), py_p95_sorted['wall_ms'],
-                              color=self.colors['secondary'], alpha=0.8)
+        if 'py_io' in benchmarks and ax_idx < len(axes):
+            py_data = df[df['bench'] == 'py_io']
+            if not py_data.empty:
+                py_p95_data = py_data[py_data['level_4'] == 'p95']
+                if not py_p95_data.empty:
+                    py_p95_sorted = py_p95_data.sort_values('block_kb')
+                    bars = axes[ax_idx].bar(range(len(py_p95_sorted)), py_p95_sorted['wall_ms'],
+                                  color=self.colors['secondary'], alpha=0.8)
+                    
+                    axes[ax_idx].set_xlabel('Block Size (KB)')
+                    axes[ax_idx].set_ylabel('P95 Latency (ms)')
+                    axes[ax_idx].set_title('Python I/O Performance')
+                    axes[ax_idx].set_xticks(range(len(py_p95_sorted)))
+                    axes[ax_idx].set_xticklabels([f'{int(size)}KB' for size in py_p95_sorted['block_kb']])
+                    axes[ax_idx].grid(True, alpha=0.3, axis='y')
+            ax_idx += 1
+        
+        # LiDAR Processing subplot
+        if 'lidar_processing' in benchmarks and ax_idx < len(axes):
+            lidar_data = df[df['bench'] == 'lidar_processing']
+            if not lidar_data.empty:
+                # Create a simple bar chart for LiDAR metrics
+                metrics = ['p50', 'p95', 'p99', 'mean']
+                metric_values = []
+                metric_labels = []
                 
-                ax2.set_xlabel('Block Size (KB)')
-                ax2.set_ylabel('P95 Latency (ms)')
-                ax2.set_title('Python I/O Performance')
-                ax2.set_xticks(range(len(py_p95_sorted)))
-                ax2.set_xticklabels([f'{int(size)}KB' for size in py_p95_sorted['block_kb']])
-                ax2.grid(True, alpha=0.3, axis='y')
+                for metric in metrics:
+                    metric_data = lidar_data[lidar_data['level_4'] == metric]
+                    if not metric_data.empty:
+                        metric_values.append(metric_data['wall_ms'].iloc[0])
+                        metric_labels.append(metric.upper())
+                
+                if metric_values:
+                    bars = axes[ax_idx].bar(range(len(metric_values)), metric_values,
+                                          color=self.colors['accent'], alpha=0.8)
+                    
+                    axes[ax_idx].set_xlabel('Performance Metrics')
+                    axes[ax_idx].set_ylabel('Processing Time (ms)')
+                    axes[ax_idx].set_title('LiDAR Processing Performance')
+                    axes[ax_idx].set_xticks(range(len(metric_labels)))
+                    axes[ax_idx].set_xticklabels(metric_labels)
+                    axes[ax_idx].grid(True, alpha=0.3, axis='y')
+            ax_idx += 1
         
         plt.suptitle('Autonomous Vehicle Performance Analysis\nBenchmark Comparison', 
                     fontsize=16, fontweight='bold')
@@ -288,6 +341,143 @@ class PerformanceVisualizer:
                    facecolor='white', edgecolor='none')
         plt.close()
 
+        return filepath
+    
+    def create_lidar_processing_plot(self, df: pd.DataFrame, output_dir: str) -> str:
+        """Create visualization for LiDAR processing benchmarks showing performance vs point cloud size.
+        
+        Args:
+            df: DataFrame with lidar_processing data
+            output_dir: Directory to save the plot
+            
+        Returns:
+            Path to saved plot file
+        """
+        # We need to load the raw data to get point cloud sizes
+        raw_data_path = "out/lidar_processing_raw.csv"
+        if not os.path.exists(raw_data_path):
+            print("Warning: Raw LiDAR data not found, creating fallback plot")
+            return self._create_fallback_lidar_plot(df, output_dir)
+        
+        # Load raw data to get point cloud sizes
+        raw_df = pd.read_csv(raw_data_path)
+        
+        # Group by point cloud size and calculate statistics
+        point_sizes = sorted(raw_df['points'].unique())
+        
+        fig, ax = plt.subplots(figsize=self.figure_size)
+        
+        # Calculate mean processing time for each point cloud size
+        mean_times = []
+        std_times = []
+        
+        for size in point_sizes:
+            size_data = raw_df[raw_df['points'] == size]['wall_ms']
+            mean_times.append(size_data.mean())
+            std_times.append(size_data.std())
+        
+        # Create line plot with error bars
+        x_pos = range(len(point_sizes))
+        ax.errorbar(x_pos, mean_times, yerr=std_times, 
+                   color=self.colors['primary'], marker='o', linewidth=2, 
+                   markersize=8, capsize=5, capthick=2)
+        
+        # Add value labels on points
+        for i, (mean_time, std_time) in enumerate(zip(mean_times, std_times)):
+            ax.text(i, mean_time + std_time + max(mean_times)*0.02,
+                   f'{mean_time:.1f}±{std_time:.1f}ms', 
+                   ha='center', va='bottom', fontweight='bold', fontsize=9)
+        
+        # Customize plot appearance
+        ax.set_xlabel('Point Cloud Size', fontweight='bold')
+        ax.set_ylabel('Processing Time (ms)', fontweight='bold')
+        ax.set_title('LiDAR Processing Performance vs Point Cloud Size\nOptimized DBSCAN Algorithm', 
+                    fontweight='bold', pad=20)
+        
+        # Set x-axis labels
+        ax.set_xticks(x_pos)
+        ax.set_xticklabels([f'{size:,}' for size in point_sizes])
+        
+        # Set axis properties
+        ax.set_ylim(bottom=0)
+        ax.grid(True, alpha=0.3, linestyle='-', linewidth=0.5)
+        
+        # Add performance insights
+        min_time = min(mean_times)
+        max_time = max(mean_times)
+        speedup_ratio = max_time / min_time
+        
+        ax.text(0.02, 0.98, f'Performance Range: {min_time:.1f}ms - {max_time:.1f}ms\n'
+                           f'Speedup Ratio: {speedup_ratio:.1f}x\n'
+                           f'Total Points Tested: {sum(point_sizes):,}',
+                transform=ax.transAxes, fontsize=9, verticalalignment='top',
+                bbox=dict(boxstyle='round', facecolor='lightgreen', alpha=0.8))
+        
+        plt.tight_layout()
+        
+        # Save plot
+        filename = 'lidar_processing_p95.png'
+        filepath = os.path.join(output_dir, filename)
+        plt.savefig(filepath, dpi=self.dpi, bbox_inches='tight',
+                   facecolor='white', edgecolor='none')
+        plt.close()
+        
+        return filepath
+    
+    def _create_fallback_lidar_plot(self, df: pd.DataFrame, output_dir: str) -> str:
+        """Create fallback LiDAR plot when raw data is not available."""
+        fig, ax = plt.subplots(figsize=self.figure_size)
+        
+        # Create a simple performance overview
+        metrics = ['p50', 'p95', 'p99', 'mean']
+        metric_values = []
+        metric_labels = []
+        
+        for metric in metrics:
+            metric_data = df[df['level_4'] == metric]
+            if not metric_data.empty:
+                metric_values.append(metric_data['wall_ms'].iloc[0])
+                metric_labels.append(metric.upper())
+        
+        if metric_values:
+            bars = ax.bar(range(len(metric_values)), metric_values,
+                         color=self.colors['accent'], alpha=0.8,
+                         edgecolor='white', linewidth=1.5)
+            
+            # Add value labels on bars
+            for i, (bar, value) in enumerate(zip(bars, metric_values)):
+                ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + max(metric_values)*0.01,
+                       f'{value:.1f}ms', ha='center', va='bottom', fontweight='bold')
+            
+            # Customize plot appearance
+            ax.set_xlabel('Performance Metrics', fontweight='bold')
+            ax.set_ylabel('Processing Time (ms)', fontweight='bold')
+            ax.set_title('LiDAR Point Cloud Processing Performance\n(Aggregated Data)', 
+                        fontweight='bold', pad=20)
+            
+            # Set x-axis labels
+            ax.set_xticks(range(len(metric_labels)))
+            ax.set_xticklabels(metric_labels)
+            
+            # Set axis properties
+            ax.set_ylim(bottom=0)
+            ax.grid(True, alpha=0.3, linestyle='-', linewidth=0.5, axis='y')
+            
+            # Add warning about aggregated data
+            ax.text(0.02, 0.98, '⚠️ This shows aggregated data from multiple point cloud sizes\n'
+                               'Consider viewing individual point cloud size performance',
+                    transform=ax.transAxes, fontsize=9, verticalalignment='top',
+                    bbox=dict(boxstyle='round', facecolor='lightyellow', alpha=0.8))
+        
+        plt.tight_layout()
+        
+        # Save plot
+        filename = 'lidar_processing_p95.png'
+        filepath = os.path.join(output_dir, filename)
+        plt.savefig(filepath, dpi=self.dpi, bbox_inches='tight',
+                   facecolor='white', edgecolor='none')
+        plt.close()
+        
         return filepath
     
     def generate_visualizations(self, df: pd.DataFrame, output_dir: str) -> List[str]:
@@ -317,6 +507,10 @@ class PerformanceVisualizer:
             elif bench == 'py_io':
                 plot_path = self.create_py_io_plot(bench_data, output_dir)
                 generated_plots.append(plot_path)
+            elif bench == 'lidar_processing':
+                plot_path = self.create_lidar_processing_plot(bench_data, output_dir)
+                if plot_path:  # Only add if plot was successfully created
+                    generated_plots.append(plot_path)
         
         # Generate comparison plot
         comparison_path = self.create_comparison_plot(df, output_dir)

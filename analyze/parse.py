@@ -1,6 +1,6 @@
 """
-Statistical analysis and data aggregation for performance benchmarks.
-Part of the Autonomous Vehicle Performance Analysis Toolkit.
+性能基准测试的统计分析和数据聚合。
+自动驾驶车辆性能分析工具包的一部分。
 """
 
 import argparse

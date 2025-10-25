@@ -9,4 +9,4 @@ for th in 1 4 8; do
   LABEL="cpp_${th}" bash "$ROOT/bench/cpp_compute/run.sh" O3 $th
 done
 bash "$ROOT/bench/py_io/run.sh"
-echo "Done running benchmarks."
+echo "基准测试运行完成。"

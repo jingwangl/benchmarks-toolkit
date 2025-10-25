@@ -1,6 +1,6 @@
 """
-Configuration management for the Autonomous Vehicle Performance Analysis Toolkit.
-Handles loading and validation of configuration files.
+自动驾驶车辆性能分析工具包的配置管理。
+处理配置文件的加载和验证。
 """
 
 import json
@@ -49,11 +49,15 @@ class ConfigManager:
                 "cpp_compute": {
                     "optimization_levels": ["O2", "O3"],
                     "thread_counts": [1, 4, 8],
-                    "iterations": 2000000
+                    "iterations": 200000
                 },
                 "py_io": {
                     "block_sizes_kb": [4, 64, 512],
-                    "operation_count": 100,
+                    "operation_count": 20,
+                    "iterations": 3
+                },
+                "lidar_processing": {
+                    "point_cloud_sizes": [5000, 10000, 20000, 50000],
                     "iterations": 3
                 }
             },

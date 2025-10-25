@@ -1,15 +1,15 @@
-# Core dependencies for Autonomous Vehicle Performance Analysis Toolkit
+# 自动驾驶车辆性能分析工具包的核心依赖
 pandas>=1.5.0
 matplotlib>=3.6.0
 numpy>=1.21.0
 seaborn>=0.11.0
 scikit-learn>=1.1.0
 
-# Optional dependencies for enhanced functionality
-# Uncomment as needed:
-# psutil>=5.9.0          # System monitoring
-# py-cpuinfo>=8.0.0      # CPU information
-# GPUtil>=1.4.0          # GPU monitoring
-# plotly>=5.0.0          # Interactive visualizations
-# jupyter>=1.0.0         # Jupyter notebook support
-# scipy>=1.9.0           # Advanced statistical analysis
+# 增强功能的可选依赖
+# 根据需要取消注释：
+# psutil>=5.9.0          # 系统监控
+# py-cpuinfo>=8.0.0      # CPU信息
+# GPUtil>=1.4.0          # GPU监控
+# plotly>=5.0.0          # 交互式可视化
+# jupyter>=1.0.0         # Jupyter notebook支持
+# scipy>=1.9.0           # 高级统计分析

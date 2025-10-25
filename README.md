@@ -1,162 +1,172 @@
-# Autonomous Vehicle Performance Analysis Toolkit
+# 自动驾驶车辆性能分析工具包
 
-A comprehensive benchmarking and performance analysis toolkit designed for autonomous vehicle systems. This toolkit provides automated performance testing, data collection, and visualization capabilities to help analyze computational bottlenecks and optimize system performance.
+专为自动驾驶车辆系统设计的综合基准测试和性能分析工具包。该工具包提供自动化性能测试、数据收集和可视化功能，帮助分析计算瓶颈并优化系统性能。
 
-## 🚗 Features
+## 🚗 功能特性
 
-### Core Capabilities
-- **Multi-language Benchmarking**: C++ computational workloads and Python I/O operations
-- **Automated Data Collection**: Wall-clock timing, statistical analysis (P50/P95/P99)
-- **Environment Profiling**: CPU, memory, and system configuration capture
-- **Professional Reporting**: Automated report generation with visualizations
-- **Cross-platform Support**: Windows PowerShell and Linux Bash compatibility
+### 核心能力
+- **多语言基准测试**：C++计算工作负载和Python I/O操作
+- **自动化数据收集**：墙钟时间、统计分析（P50/P95/P99）
+- **环境分析**：CPU、内存和系统配置捕获
+- **专业报告**：带可视化的自动化报告生成
+- **跨平台支持**：Windows PowerShell和Linux Bash兼容性
 
-### Performance Metrics
-- **Computational Performance**: CPU-bound workloads with different optimization levels
-- **I/O Performance**: File system operations with varying block sizes
-- **Statistical Analysis**: Comprehensive percentile analysis and trend detection
-- **Resource Utilization**: System resource monitoring and profiling
+### 性能指标
+- **计算性能**：不同优化级别的CPU密集型工作负载
+- **I/O性能**：不同块大小的文件系统操作
+- **统计分析**：综合百分位数分析和趋势检测
+- **资源利用率**：系统资源监控和分析
 
-## 🚀 Quick Start
+## 🚀 快速开始
 
-### Prerequisites
-- Python 3.8+ with pandas and matplotlib
-- C++ compiler (g++ or MSVC)
-- PowerShell (Windows) or Bash (Linux/macOS)
+### 前置要求
+- Python 3.8+ 及pandas和matplotlib
+- C++编译器（g++或MSVC）
+- PowerShell（Windows）或Bash（Linux/macOS）
 
-### Installation
+### 安装
 ```bash
-# Clone the repository
+# 克隆仓库
 git clone <repository-url>
 cd benchmarks-toolkit
 
-# Install Python dependencies
+# 安装Python依赖
 pip install -r requirements.txt
 
-# Run complete benchmark suite
+# 运行完整基准测试套件
 powershell -ExecutionPolicy Bypass -File run.ps1 all  # Windows
-# OR
+# 或者
 bash run.sh all  # Linux/macOS
 ```
 
-### Results
-- **Raw Data**: `out/*.csv` - Detailed performance measurements
-- **Analysis**: `out/metrics.csv` - Statistical summaries
-- **Visualizations**: `report/figs/*.png` - Performance charts
-- **Report**: `report/REPORT.md` - Comprehensive analysis report
+### 结果
+- **原始数据**：`out/*.csv` - 详细性能测量
+- **分析**：`out/metrics.csv` - 统计摘要
+- **可视化**：`report/figs/*.png` - 性能图表
+- **报告**：`report/REPORT.md` - 综合分析报告
 
-## 📊 Benchmark Suites
+## 📊 基准测试套件
 
-### Computational Benchmarks (`bench/cpp_compute/`)
-- **Purpose**: CPU-intensive workload analysis
-- **Parameters**: 
-  - Optimization levels: O2, O3
-  - Thread counts: 1, 4, 8
-  - Iterations: 200,000 (optimized for home computers)
-- **Metrics**: Execution time, throughput, scalability
+### 计算基准测试（`bench/cpp_compute/`）
+- **目的**：自动驾驶感知算法CPU性能分析
+- **应用场景**：
+  - 计算机视觉算法优化（目标检测、语义分割）
+  - 传感器融合计算性能评估
+  - 实时路径规划算法性能测试
+- **参数**：
+  - 优化级别：O2、O3（编译器优化对实时性能的影响）
+  - 线程数：1、4、8（多核并行处理能力）
+  - 迭代次数：200,000（针对家用电脑优化）
+- **指标**：执行时间、吞吐量、可扩展性
 
-### I/O Benchmarks (`bench/py_io/`)
-- **Purpose**: Storage subsystem performance analysis
-- **Parameters**:
-  - Block sizes: 4KB, 64KB, 512KB
-  - Operations: 20 read/write cycles (optimized for home computers)
-- **Metrics**: Latency, throughput, I/O efficiency
+### I/O基准测试（`bench/py_io/`）
+- **目的**：自动驾驶数据存储子系统性能分析
+- **应用场景**：
+  - 传感器数据记录性能（摄像头、雷达、LiDAR数据存储）
+  - 地图数据加载性能测试
+  - 日志系统I/O性能评估
+- **参数**：
+  - 块大小：4KB、64KB、512KB（不同数据类型的存储优化）
+  - 操作：20次读写循环（针对家用电脑优化）
+- **指标**：延迟、吞吐量、I/O效率
 
-### LiDAR Processing (`bench/lidar_processing/`)
-- **Purpose**: Real-time point cloud processing simulation
-- **Parameters**:
-  - Point cloud sizes: 5K, 10K, 20K, 50K points (optimized for home computers)
-  - Processing pipeline stages
-- **Metrics**: End-to-end processing time, stage-wise breakdown
+### LiDAR处理（`bench/lidar_processing/`）
+- **目的**：实时点云处理模拟
+- **参数**：
+  - 点云大小：5K、10K、20K、50K点（针对家用电脑优化）
+  - 处理流水线阶段
+- **指标**：端到端处理时间、分阶段分解
 
-## 🏗️ Architecture
+## 🏗️ 架构
 
 ```
 benchmarks-toolkit/
-├── bench/                    # Benchmark implementations
-│   ├── cpp_compute/         # C++ computational workloads
-│   └── py_io/               # Python I/O operations
-├── analyze/                 # Data analysis and visualization
-│   ├── parse.py            # Statistical analysis
-│   └── plot.py             # Chart generation
-├── collect/                # Data collection orchestration
-├── out/                    # Output data and results
-├── report/                 # Generated reports and visualizations
-└── config/                 # Configuration management
+├── bench/                    # 基准测试实现
+│   ├── cpp_compute/         # C++计算工作负载
+│   └── py_io/               # Python I/O操作
+├── analyze/                 # 数据分析和可视化
+│   ├── parse.py            # 统计分析
+│   └── plot.py             # 图表生成
+├── collect/                # 数据收集编排
+├── out/                    # 输出数据和结果
+├── report/                 # 生成的报告和可视化
+└── config/                 # 配置管理
 ```
 
-## 🔧 Configuration
+## 🔧 配置
 
-### Benchmark Parameters
-- **Thread Configuration**: Adjustable thread counts for scalability testing
-- **Block Sizes**: Configurable I/O block sizes for storage analysis
-- **Optimization Levels**: Compiler optimization settings for performance comparison
+### 基准测试参数
+- **线程配置**：可调整的线程数以进行可扩展性测试
+- **块大小**：可配置的I/O块大小用于存储分析
+- **优化级别**：编译器优化设置用于性能比较
 
-### Analysis Settings
-- **Statistical Metrics**: P50, P95, P99 percentiles and mean values
-- **Visualization Options**: Chart types, colors, and formatting
-- **Report Templates**: Customizable report generation
+### 分析设置
+- **统计指标**：P50、P95、P99百分位数和平均值
+- **可视化选项**：图表类型、颜色和格式
+- **报告模板**：可自定义的报告生成
 
-## 📈 Use Cases
+## 📈 使用场景
 
-### Autonomous Vehicle Development
-- **Sensor Data Processing**: Analyze computational requirements for LiDAR, camera, and radar data
-- **Real-time Performance**: Ensure system meets real-time constraints
-- **Resource Optimization**: Identify bottlenecks in computational pipelines
+### 自动驾驶车辆开发
+- **传感器数据处理**：分析LiDAR、摄像头和雷达数据的计算需求
+- **计算性能优化**：CPU密集型算法（感知、规划、控制）的性能分析
+- **数据存储优化**：传感器数据记录、地图加载、日志系统的I/O性能
+- **实时性能**：确保系统满足实时约束
+- **资源优化**：识别计算流水线中的瓶颈
 
-### Performance Regression Testing
-- **Continuous Integration**: Automated performance validation
-- **Version Comparison**: Track performance changes across software versions
-- **Hardware Evaluation**: Compare performance across different hardware configurations
+### 性能回归测试
+- **持续集成**：自动化性能验证
+- **版本比较**：跟踪软件版本间的性能变化
+- **硬件评估**：比较不同硬件配置的性能
 
-### System Profiling
-- **Bottleneck Identification**: Locate performance-critical components
-- **Scalability Analysis**: Understand system behavior under different loads
-- **Resource Planning**: Plan hardware requirements based on performance data
+### 系统分析
+- **瓶颈识别**：定位性能关键组件
+- **可扩展性分析**：了解不同负载下的系统行为
+- **资源规划**：基于性能数据规划硬件需求
 
-## 🛠️ Development
+## 🛠️ 开发
 
-### Adding New Benchmarks
-1. Create benchmark implementation in `bench/` directory
-2. Implement data collection script (CSV output format)
-3. Add configuration parameters
-4. Update analysis scripts if needed
+### 添加新基准测试
+1. 在`bench/`目录中创建基准测试实现
+2. 实现数据收集脚本（CSV输出格式）
+3. 添加配置参数
+4. 如需要，更新分析脚本
 
-### Extending Analysis
-- **Custom Metrics**: Add new statistical measures
-- **Visualization Types**: Create additional chart types
-- **Report Formats**: Extend report generation capabilities
+### 扩展分析
+- **自定义指标**：添加新的统计测量
+- **可视化类型**：创建额外的图表类型
+- **报告格式**：扩展报告生成能力
 
-## 📋 Roadmap
+## 📋 路线图
 
-### Phase 1: Core Enhancements
-- [ ] Enhanced error handling and validation
-- [ ] Configuration file management
-- [ ] Improved cross-platform compatibility
+### 第一阶段：核心增强
+- [ ] 增强错误处理和验证
+- [ ] 配置文件管理
+- [ ] 改进跨平台兼容性
 
-### Phase 2: Advanced Features
-- [ ] Real-time monitoring capabilities
-- [ ] Advanced statistical analysis
-- [ ] Performance regression detection
+### 第二阶段：高级功能
+- [ ] 实时监控能力
+- [ ] 高级统计分析
+- [ ] 性能回归检测
 
-### Phase 3: Autonomous Vehicle Focus
-- [ ] ROS2 integration for sensor data analysis
-- [ ] Real-time system profiling
-- [ ] Autonomous driving workload simulation
+### 第三阶段：自动驾驶车辆重点
+- [ ] ROS2集成用于传感器数据分析
+- [ ] 实时系统分析
+- [ ] 自动驾驶工作负载模拟
 
-## 🤝 Contributing
+## 🤝 贡献
 
-This project is designed to demonstrate performance analysis capabilities for autonomous vehicle systems. Contributions are welcome for:
-- New benchmark implementations
-- Analysis algorithm improvements
-- Visualization enhancements
-- Documentation updates
+该项目旨在展示自动驾驶车辆系统的性能分析能力。欢迎在以下方面做出贡献：
+- 新基准测试实现
+- 分析算法改进
+- 可视化增强
+- 文档更新
 
-## 📄 License
+## 📄 许可证
 
-This project is created for demonstration purposes in autonomous vehicle performance analysis.
+该项目为自动驾驶车辆性能分析演示目的而创建。
 
 ---
 
-**Created for**: Autonomous Vehicle Performance Analyst Position  
-**Focus**: Computational performance analysis, system profiling, and optimization
+**创建目的**：自动驾驶车辆性能分析师职位  
+**重点**：计算性能分析、系统分析和优化

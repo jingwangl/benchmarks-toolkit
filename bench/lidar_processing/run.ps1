@@ -1,39 +1,39 @@
-# PowerShell version of LiDAR Processing Benchmark Runner
-# Part of the Autonomous Vehicle Performance Analysis Toolkit
+# LiDAR处理基准测试运行器的PowerShell版本
+# 自动驾驶车辆性能分析工具包的一部分
 
 $out = "..\..\out\lidar_processing_raw.csv"
 New-Item -ItemType Directory -Force -Path (Split-Path $out) | Out-Null
 
-# Create header and clear existing data
+# 创建标题并清空现有数据
 "bench,points,wall_ms,iterations" | Out-File -FilePath $out -Encoding UTF8
 
-Write-Host "Running LiDAR Processing Benchmark..."
+Write-Host "正在运行LiDAR处理基准测试..."
 
-# Test different point cloud sizes (simulating different LiDAR resolutions)
-# Reduced for home computer compatibility
+# 测试不同的点云大小（模拟不同的LiDAR分辨率）
+# 针对家用电脑兼容性进行了优化
 $pointCounts = @(5000, 10000, 20000, 50000)
 $iterations = 3
 
 foreach ($points in $pointCounts) {
-    Write-Host "Testing with $points points..."
+    Write-Host "正在测试 $points 个点的点云..."
     
     for ($i = 1; $i -le $iterations; $i++) {
-        # Run benchmark and capture output (both stdout and stderr)
-        # Use full path to ensure correct execution
+        # 运行基准测试并捕获输出（包括stdout和stderr）
+        # 使用绝对路径确保正确执行
         $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
         $output = python "$scriptDir\lidar_bench.py" --points $points --iterations 1 --quiet --parallel 2>&1
         
-        # Extract the CSV line from the output
+        # 从输出中提取CSV行
         $csvLine = $output | Select-String "lidar_processing," | Select-Object -Last 1
         
         if ($csvLine) {
             $csvLine.Line | Add-Content -Path $out -Encoding UTF8
             $wallTime = ($csvLine.Line -split ',')[2]
-            Write-Host "  Iteration $i`: $wallTime ms"
+            Write-Host "  迭代 $i：$wallTime ms"
         } else {
-            Write-Host "  Warning: No result captured for iteration $i"
+            Write-Host "  警告：第 $i 次迭代未捕获到结果"
         }
     }
 }
 
-Write-Host "LiDAR benchmark completed. Results written to $out"
+Write-Host "LiDAR基准测试完成。结果已写入 $out"
