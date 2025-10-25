@@ -1,6 +1,6 @@
 # Autonomous Vehicle Performance Analysis Toolkit - Performance Analysis Report
 
-**Generated:** 2025-10-26 01:23:45
+**Generated:** 2025-10-26 02:12:03
 **Version:** 1.0.0
 
 ## Executive Summary
@@ -39,9 +39,9 @@ MINGW64_NT-10.0-26100 ljw 3.4.10-87d57229.x86_64 2024-02-14 20:17 UTC x86_64 Msy
 
 **I/O Performance Analysis:**
 
-- **Most Efficient:** 4KB blocks - 36.1ms P95
-- **Least Efficient:** 512KB blocks - 452.4ms P95
-- **Efficiency Ratio:** 0.08 (lower is better)
+- **Most Efficient:** 512KB blocks - 19.1ms P95
+- **Least Efficient:** 4KB blocks - 161.2ms P95
+- **Efficiency Ratio:** 0.12 (lower is better)
 
 ## Performance Visualizations
 
@@ -69,7 +69,7 @@ MINGW64_NT-10.0-26100 ljw 3.4.10-87d57229.x86_64 2024-02-14 20:17 UTC x86_64 Msy
 - **Compiler Optimization:** O3 provides 5.8% improvement over O2
 ### I/O Optimization
 
-- **Optimal Block Size:** 4KB provides best performance
+- **Optimal Block Size:** 512KB provides best performance
 - **Block Size Strategy:** Consider using adaptive block sizing based on data characteristics
 
 ### General Recommendations
