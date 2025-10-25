@@ -1,13 +1,15 @@
-﻿# 自动驾驶车辆性能分析工具包 - 性能分析报告
+# Autonomous Vehicle Performance Analysis Toolkit - Performance Analysis Report
 
-**生成时间：** 2025-10-25 07:47:08
-**版本：** 1.0.0
+**Generated:** 2025-10-26 01:23:45
+**Version:** 1.0.0
 
-## 执行摘要
+## Executive Summary
 
-本报告展示了与自动驾驶车辆系统相关的计算和I/O工作负载的综合性能分析。分析包括统计性能指标、可视化和系统优化的可操作建议。
+This report presents a comprehensive performance analysis of computational and I/O workloads 
+relevant to autonomous vehicle systems. The analysis includes statistical performance metrics, 
+visualizations, and actionable recommendations for system optimization.
 
-## 系统环境
+## System Environment
 
 ```
 ==== uname -a ====
@@ -21,76 +23,77 @@ MINGW64_NT-10.0-26100 ljw 3.4.10-87d57229.x86_64 2024-02-14 20:17 UTC x86_64 Msy
 
 ```
 
-## 性能摘要
+## Performance Summary
 
-### C++计算基准测试
+### Cpp Compute Benchmark
 
-**计算性能分析：**
+**Computational Performance Analysis:**
 
-- **最佳性能：** O3优化，1.0线程 - 0.829ms P95
-- **最差性能：** O2优化，8.0线程 - 1.919ms P95
-- **优化影响：** 56.8%性能提升
+- **Best Performance:** O3 optimization, 1.0 threads - 0.523ms P95
+- **Worst Performance:** O2 optimization, 8.0 threads - 1.316ms P95
+- **Optimization Impact:** 60.3% performance improvement
 
-### LiDAR处理基准测试
+### Lidar Processing Benchmark
 
-### Python I/O基准测试
+### Py Io Benchmark
 
-**I/O性能分析：**
+**I/O Performance Analysis:**
 
-- **最高效：** 4KB块 - 89.8ms P95
-- **最低效：** 64KB块 - 1047.0ms P95
-- **效率比率：** 0.09（越低越好）
+- **Most Efficient:** 4KB blocks - 36.1ms P95
+- **Least Efficient:** 512KB blocks - 452.4ms P95
+- **Efficiency Ratio:** 0.08 (lower is better)
 
-## 性能可视化
+## Performance Visualizations
 
-### C++计算P95
+### Cpp Compute P95
 
-![C++计算P95](figs/cpp_compute_p95.png)
+![Cpp Compute P95](figs/cpp_compute_p95.png)
 
-### LiDAR处理P95
+### Lidar Processing P95
 
-![LiDAR处理P95](figs/lidar_processing_p95.png)
+![Lidar Processing P95](figs/lidar_processing_p95.png)
 
-### 性能比较
+### Performance Comparison
 
-![性能比较](figs/performance_comparison.png)
+![Performance Comparison](figs/performance_comparison.png)
 
-### Python I/O P95
+### Py Io P95
 
-![Python I/O P95](figs/py_io_p95.png)
+![Py Io P95](figs/py_io_p95.png)
 
-## 性能建议
+## Performance Recommendations
 
-### 计算优化
+### Computational Optimization
 
-- **线程扩展：** 考虑调查线程争用或内存带宽限制
-- **编译器优化：** O3相比O2显示最小改进
+- **Thread Scaling:** Consider investigating thread contention or memory bandwidth limitations
+- **Compiler Optimization:** O3 provides 5.8% improvement over O2
+### I/O Optimization
 
-### I/O优化
+- **Optimal Block Size:** 4KB provides best performance
+- **Block Size Strategy:** Consider using adaptive block sizing based on data characteristics
 
-- **最佳块大小：** 4KB提供最佳性能
-- **块大小策略：** 考虑根据数据特征使用自适应块大小
+### General Recommendations
 
-### 一般建议
+- **Monitoring:** Implement continuous performance monitoring in production
+- **Baseline:** Establish performance baselines for regression testing
+- **Profiling:** Use detailed profiling tools for deeper performance analysis
+## Methodology
 
-- **监控：** 在生产中实施持续性能监控
-- **基线：** 为回归测试建立性能基线
-- **分析：** 使用详细的分析工具进行更深入的性能分析
+### Benchmark Design
+- **Computational Benchmarks:** CPU-intensive workloads with varying optimization levels and thread counts
+- **I/O Benchmarks:** File system operations with different block sizes
+- **Statistical Analysis:** P50, P95, P99 percentiles and mean values
 
-## 方法论
+### Data Collection
+- Multiple iterations per configuration for statistical significance
+- Wall-clock timing for accurate performance measurement
+- Environment information capture for reproducibility
 
-### 基准测试设计
-- **计算基准测试：** 不同优化级别和线程数的CPU密集型工作负载
-- **I/O基准测试：** 不同块大小的文件系统操作
-- **统计分析：** P50、P95、P99百分位数和平均值
+## Conclusion
 
-### 数据收集
-- 每个配置多次迭代以确保统计显著性
-- 墙钟时间用于准确的性能测量
-- 环境信息捕获以确保可重现性
+This performance analysis provides insights into system behavior under different workloads 
+and configurations. The results can be used to optimize system performance and establish 
+baselines for future development and testing.
 
-## 结论
-
-此性能分析提供了系统在不同工作负载和配置下的行为洞察。结果可用于优化系统性能并为未来的开发和测试建立基线。
-
-如有问题或需要额外分析，请参考项目文档或联系性能分析团队。
+For questions or additional analysis, please refer to the project documentation or 
+contact the performance analysis team.

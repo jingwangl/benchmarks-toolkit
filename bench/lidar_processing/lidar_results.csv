@@ -1,2 +1,0 @@
-total_time_ms,generation_time_ms,filtering_time_ms,clustering_time_ms,bbox_time_ms,num_points,filtered_points,num_clusters,num_objects
-1083.241899999848,27.50689999811584,5.204300003242679,970.6088999955682,79.92180000292137,500000,301670,3041,3041
