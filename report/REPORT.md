@@ -1,6 +1,6 @@
 # Autonomous Vehicle Performance Analysis Toolkit - Performance Analysis Report
 
-**Generated:** 2025-10-26 05:12:21
+**Generated:** 2025-10-26 05:21:24
 **Version:** 1.0.0
 
 ## Executive Summary
@@ -19,9 +19,9 @@ Environment information not available.
 
 **Computational Performance Analysis:**
 
-- **Best Performance:** O2 optimization, 4.0 threads - 7.915ms P95
-- **Worst Performance:** O3 optimization, 1.0 threads - 29.612ms P95
-- **Optimization Impact:** 73.3% performance improvement
+- **Best Performance:** O3 optimization, 8.0 threads - 6.214ms P95
+- **Worst Performance:** O3 optimization, 1.0 threads - 39.365ms P95
+- **Optimization Impact:** 84.2% performance improvement
 
 ### Lidar Processing Benchmark
 
@@ -29,9 +29,9 @@ Environment information not available.
 
 **I/O Performance Analysis:**
 
-- **Most Efficient:** 512KB blocks - 16.3ms P95
-- **Least Efficient:** 4KB blocks - 154.4ms P95
-- **Efficiency Ratio:** 0.11 (lower is better)
+- **Most Efficient:** 512KB blocks - 21.5ms P95
+- **Least Efficient:** 4KB blocks - 174.0ms P95
+- **Efficiency Ratio:** 0.12 (lower is better)
 
 ## Performance Visualizations
 
