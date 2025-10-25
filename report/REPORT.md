@@ -1,6 +1,6 @@
 # Autonomous Vehicle Performance Analysis Toolkit - Performance Analysis Report
 
-**Generated:** 2025-10-26 02:12:03
+**Generated:** 2025-10-26 05:12:21
 **Version:** 1.0.0
 
 ## Executive Summary
@@ -11,17 +11,7 @@ visualizations, and actionable recommendations for system optimization.
 
 ## System Environment
 
-```
-==== uname -a ====
-MINGW64_NT-10.0-26100 ljw 3.4.10-87d57229.x86_64 2024-02-14 20:17 UTC x86_64 Msys
-
-==== lscpu ====
-
-==== free -h ====
-
-==== lsblk ====
-
-```
+Environment information not available.
 
 ## Performance Summary
 
@@ -29,9 +19,9 @@ MINGW64_NT-10.0-26100 ljw 3.4.10-87d57229.x86_64 2024-02-14 20:17 UTC x86_64 Msy
 
 **Computational Performance Analysis:**
 
-- **Best Performance:** O3 optimization, 1.0 threads - 0.523ms P95
-- **Worst Performance:** O2 optimization, 8.0 threads - 1.316ms P95
-- **Optimization Impact:** 60.3% performance improvement
+- **Best Performance:** O2 optimization, 4.0 threads - 7.915ms P95
+- **Worst Performance:** O3 optimization, 1.0 threads - 29.612ms P95
+- **Optimization Impact:** 73.3% performance improvement
 
 ### Lidar Processing Benchmark
 
@@ -39,9 +29,9 @@ MINGW64_NT-10.0-26100 ljw 3.4.10-87d57229.x86_64 2024-02-14 20:17 UTC x86_64 Msy
 
 **I/O Performance Analysis:**
 
-- **Most Efficient:** 512KB blocks - 19.1ms P95
-- **Least Efficient:** 4KB blocks - 161.2ms P95
-- **Efficiency Ratio:** 0.12 (lower is better)
+- **Most Efficient:** 512KB blocks - 16.3ms P95
+- **Least Efficient:** 4KB blocks - 154.4ms P95
+- **Efficiency Ratio:** 0.11 (lower is better)
 
 ## Performance Visualizations
 
@@ -65,8 +55,8 @@ MINGW64_NT-10.0-26100 ljw 3.4.10-87d57229.x86_64 2024-02-14 20:17 UTC x86_64 Msy
 
 ### Computational Optimization
 
-- **Thread Scaling:** Consider investigating thread contention or memory bandwidth limitations
-- **Compiler Optimization:** O3 provides 5.8% improvement over O2
+- **Thread Scaling:** Good scalability observed across thread counts
+- **Compiler Optimization:** O3 shows minimal improvement over O2
 ### I/O Optimization
 
 - **Optimal Block Size:** 512KB provides best performance

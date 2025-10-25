@@ -13,7 +13,7 @@ static long long work(int n){
 }
 
 int main(int argc, char** argv){
-    int total_iterations = 200000;  // Total work to be distributed
+    int total_iterations = 90000000;  // Fixed workload targeting ~30ms single-thread on typical PC
     int threads = 1;
     if(argc >= 2) total_iterations = atoi(argv[1]);
     if(argc >= 3) threads = atoi(argv[2]);

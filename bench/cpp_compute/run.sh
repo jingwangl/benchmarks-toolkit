@@ -3,7 +3,7 @@
 set -euo pipefail
 opt=${1:-O2}
 threads=${2:-1}
-iters=${3:-200000}  # Reduced for home computer compatibility
+iters=${3:-90000000}  # Fixed workload targeting ~30ms single-thread on typical PC
 cd "$(dirname "$0")"
 bin="build/cpp_compute_${opt}"
 if [ ! -x "$bin" ]; then
@@ -16,8 +16,8 @@ mkdir -p "$(dirname "$out")"
 # header if empty
 [ -f "$out" ] || echo "bench,config,threads,wall_ms,iterations" > "$out"
 
-# run 3 times and append (reduced for home computer compatibility)
-for i in 1 2 3; do
+# run 5 times and append for better statistical significance
+for i in 1 2 3 4 5; do
   line=$("$bin" "$iters" "$threads")
   wall=$(echo "$line" | awk -F'[,=]' '{for(i=1;i<=NF;i++){if($i~"wall_ms"){print $(i+1); exit}}}')
   echo "cpp_compute,${opt},${threads},${wall},${iters}" >> "$out"
