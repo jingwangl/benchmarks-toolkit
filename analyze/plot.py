@@ -305,29 +305,38 @@ class PerformanceVisualizer:
         
         # LiDAR Processing subplot
         if 'lidar_processing' in benchmarks and ax_idx < len(axes):
-            lidar_data = df[df['bench'] == 'lidar_processing']
-            if not lidar_data.empty:
-                # Create a simple bar chart for LiDAR metrics
-                metrics = ['p50', 'p95', 'p99', 'mean']
-                metric_values = []
-                metric_labels = []
-                
-                for metric in metrics:
-                    metric_data = lidar_data[lidar_data['level_4'] == metric]
-                    if not metric_data.empty:
-                        metric_values.append(metric_data['wall_ms'].iloc[0])
-                        metric_labels.append(metric.upper())
-                
-                if metric_values:
-                    bars = axes[ax_idx].bar(range(len(metric_values)), metric_values,
-                                          color=self.colors['accent'], alpha=0.8)
+            # Try to load raw data for point cloud size analysis
+            raw_data_path = "out/lidar_processing_raw.csv"
+            if os.path.exists(raw_data_path):
+                try:
+                    raw_df = pd.read_csv(raw_data_path)
+                    point_sizes = sorted(raw_df['points'].unique())
                     
-                    axes[ax_idx].set_xlabel('Performance Metrics')
+                    # Calculate mean processing time for each point cloud size
+                    mean_times = []
+                    for size in point_sizes:
+                        size_data = raw_df[raw_df['points'] == size]['wall_ms']
+                        mean_times.append(size_data.mean())
+                    
+                    # Create line plot showing performance vs point cloud size
+                    x_pos = range(len(point_sizes))
+                    axes[ax_idx].plot(x_pos, mean_times, 
+                                     color=self.colors['accent'], marker='o', 
+                                     linewidth=2, markersize=6)
+                    
+                    axes[ax_idx].set_xlabel('Point Cloud Size')
                     axes[ax_idx].set_ylabel('Processing Time (ms)')
                     axes[ax_idx].set_title('LiDAR Processing Performance')
-                    axes[ax_idx].set_xticks(range(len(metric_labels)))
-                    axes[ax_idx].set_xticklabels(metric_labels)
-                    axes[ax_idx].grid(True, alpha=0.3, axis='y')
+                    axes[ax_idx].set_xticks(x_pos)
+                    axes[ax_idx].set_xticklabels([f'{size:,}' for size in point_sizes])
+                    axes[ax_idx].grid(True, alpha=0.3)
+                except Exception as e:
+                    print(f"Warning: Could not load raw LiDAR data: {e}")
+                    # Fallback to aggregated metrics
+                    self._create_fallback_lidar_subplot(axes[ax_idx], df[df['bench'] == 'lidar_processing'])
+            else:
+                # Fallback to aggregated metrics when raw data not available
+                self._create_fallback_lidar_subplot(axes[ax_idx], df[df['bench'] == 'lidar_processing'])
             ax_idx += 1
         
         plt.suptitle('Autonomous Vehicle Performance Analysis\nBenchmark Comparison', 
@@ -479,6 +488,31 @@ class PerformanceVisualizer:
         plt.close()
         
         return filepath
+    
+    def _create_fallback_lidar_subplot(self, ax, lidar_data: pd.DataFrame) -> None:
+        """Create fallback LiDAR subplot when raw data is not available."""
+        if not lidar_data.empty:
+            # Create a simple bar chart for LiDAR metrics
+            metrics = ['p50', 'p95', 'p99', 'mean']
+            metric_values = []
+            metric_labels = []
+            
+            for metric in metrics:
+                metric_data = lidar_data[lidar_data['level_4'] == metric]
+                if not metric_data.empty:
+                    metric_values.append(metric_data['wall_ms'].iloc[0])
+                    metric_labels.append(metric.upper())
+            
+            if metric_values:
+                bars = ax.bar(range(len(metric_values)), metric_values,
+                             color=self.colors['accent'], alpha=0.8)
+                
+                ax.set_xlabel('Performance Metrics')
+                ax.set_ylabel('Processing Time (ms)')
+                ax.set_title('LiDAR Processing Performance')
+                ax.set_xticks(range(len(metric_labels)))
+                ax.set_xticklabels(metric_labels)
+                ax.grid(True, alpha=0.3, axis='y')
     
     def generate_visualizations(self, df: pd.DataFrame, output_dir: str) -> List[str]:
         """Generate all performance visualizations.
