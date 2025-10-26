@@ -1,28 +1,24 @@
 # 自动驾驶车辆性能分析工具包
 
-专为自动驾驶车辆系统设计的综合基准测试和性能分析工具包。该工具包提供自动化性能测试、数据收集和可视化功能，帮助分析计算瓶颈并优化系统性能。
+专为自动驾驶车辆系统设计的基准测试与性能分析工具包。提供自动化基准测试、数据聚合与可视化，以及可复用的报告生成流程。
 
 ## 🚗 功能特性
 
 ### 核心能力
-- **多语言基准测试**：C++计算工作负载和Python I/O操作
-- **自动化数据收集**：墙钟时间、统计分析（P50/P95/P99）
-- **环境分析**：CPU、内存和系统配置捕获
-- **专业报告**：带可视化的自动化报告生成
-- **跨平台支持**：Windows PowerShell和Linux Bash兼容性
+- **多语言基准测试**：C++ 计算工作负载、Python I/O 操作、LiDAR 点云模拟
+- **自动化数据收集**：墙钟时间；批量多次运行以支撑统计聚合
+- **环境信息捕获（Linux）**：`envinfo.sh` 输出 `out/env.txt`
+- **统计与可视化**：`analyze/parse.py` 统计聚合，`analyze/plot.py` 生成图表
+- **报告生成**：`analyze/report_generator.py` 产出 `report/REPORT.md`
+- **跨平台脚本**：Windows PowerShell 与 Linux Bash
 
-### 性能指标
-- **计算性能**：不同优化级别的CPU密集型工作负载
-- **I/O性能**：不同块大小的文件系统操作
-- **统计分析**：综合百分位数分析和趋势检测
-- **资源利用率**：系统资源监控和分析
 
 ## 🚀 快速开始
 
 ### 前置要求
-- Python 3.8+ 及pandas和matplotlib
-- C++编译器（g++或MSVC）
-- PowerShell（Windows）或Bash（Linux/macOS）
+- Python 3.8+（依赖见 `requirements.txt`）
+- g++（Windows 可使用 MinGW/MSYS2，或修改为 MSVC）
+- PowerShell（Windows）或 Bash（Linux/macOS）
 
 ### 安装
 ```bash
@@ -33,140 +29,103 @@ cd benchmarks-toolkit
 # 安装Python依赖
 pip install -r requirements.txt
 
-# 运行完整基准测试套件
-powershell -ExecutionPolicy Bypass -File run.ps1 all  # Windows
-# 或者
-bash run.sh all  # Linux/macOS
+# 运行完整基准流程（构建→运行→分析→报告）
+powershell -ExecutionPolicy Bypass -File run.ps1 all   # Windows
+# 或
+bash run.sh all                                        # Linux/macOS
 ```
 
-### 结果
-- **原始数据**：`out/*.csv` - 详细性能测量
-- **分析**：`out/metrics.csv` - 统计摘要
-- **可视化**：`report/figs/*.png` - 性能图表
-- **报告**：`report/REPORT.md` - 综合分析报告
+### 输出产物
+- 原始数据：`out/*_raw.csv`
+- 聚合指标：`out/metrics.csv`
+- 可视化：`report/figs/*.png`
+- 报告：`report/REPORT.md`
 
 ## 📊 基准测试套件
 
-### 计算基准测试（`bench/cpp_compute/`）
-- **目的**：自动驾驶感知算法CPU性能分析
-- **应用场景**：
-  - 计算机视觉算法优化（目标检测、语义分割）
-  - 传感器融合计算性能评估
-  - 实时路径规划算法性能测试
+### C++ 计算（`bench/cpp_compute/`）
+- **目的**：CPU 密集型计算的线程扩展性与编译优化对比
 - **参数**：
-  - 优化级别：O2、O3（编译器优化对实时性能的影响）
-  - 线程数：1、4、8（多核并行处理能力）
-  - 迭代次数：200,000（针对家用电脑优化）
-- **指标**：执行时间、吞吐量、可扩展性
+  - 优化级别：`O2`、`O3`
+  - 线程数：`1, 4, 8`
+  - 迭代次数：`90000000`
+  - 运行次数：30 次
+  - 输出：`out/cpp_compute_raw.csv`，列为 `bench,config,threads,wall_ms,iterations`
 
-### I/O基准测试（`bench/py_io/`）
-- **目的**：自动驾驶数据存储子系统性能分析
-- **应用场景**：
-  - 传感器数据记录性能（摄像头、雷达、LiDAR数据存储）
-  - 地图数据加载性能测试
-  - 日志系统I/O性能评估
+### Python I/O（`bench/py_io/`）
+- **目的**：固定总数据量模式下不同块大小的 I/O 延迟差异
 - **参数**：
-  - 块大小：4KB、64KB、512KB（不同数据类型的存储优化）
-  - 操作：20次读写循环（针对家用电脑优化）
-- **指标**：延迟、吞吐量、I/O效率
+  - 块大小：`4KB, 64KB, 512KB`
+  - 模式：PowerShell 使用 `fixed_total`（`--total_mb` 固定，默认 4MB，脚本内注释为 32MB 但当前值为 4）
+  - 循环：每种块大小 30 次
+  - 输出：
+    - PowerShell：`out/py_io_raw.csv`，列为 `bench,block_kb,wall_ms,total_mb,blocks`
+    - Bash：`out/py_io_raw.csv`，列为 `bench,block_kb,wall_ms,count`
 
-### LiDAR处理（`bench/lidar_processing/`）
-- **目的**：实时点云处理模拟
+### LiDAR 处理（`bench/lidar_processing/`）
+- **目的**：点云生成→地面过滤→DBSCAN 聚类→包围盒统计的端到端耗时
 - **参数**：
-  - 点云大小：5K、10K、20K、50K点（针对家用电脑优化）
-  - 处理流水线阶段
-- **指标**：端到端处理时间、分阶段分解
+  - 点数: `5k, 10k, 20k, 50k`，
+  - 运行次数： 30 次
+  - 输出：`out/lidar_processing_raw.csv`，列为 `bench,points,wall_ms,iterations`
 
-## 🏗️ 架构
+## 🏗️ 仓库结构
 
 ```
 benchmarks-toolkit/
-├── bench/                    # 基准测试实现
-│   ├── cpp_compute/         # C++计算工作负载
-│   └── py_io/               # Python I/O操作
-├── analyze/                 # 数据分析和可视化
-│   ├── parse.py            # 统计分析
-│   └── plot.py             # 图表生成
-├── collect/                # 数据收集编排
-├── out/                    # 输出数据和结果
-├── report/                 # 生成的报告和可视化
-└── config/                 # 配置管理
+├── bench/
+│   ├── cpp_compute/
+│   ├── py_io/
+│   └── lidar_processing/
+├── analyze/
+│   ├── parse.py
+│   ├── plot.py
+│   └── report_generator.py
+├── collect/
+├── config/
+├── out/
+├── report/
+└── run.ps1 / run.sh
 ```
 
-## 🔧 配置
+## 🔧 配置（`config/config.json` 与 `config_manager.py`）
+- 统计指标：`p50, p95, p99, mean`
+- 可视化：默认 `figure_size=[10,6]`, `dpi=100`, 样式基于 seaborn
+- 基准参数（供工具参考）：
+  - C++：`optimization_levels=["O2","O3"], thread_counts=[1,4,8], iterations=200000`
+  - I/O：`block_sizes_kb=[4,64,512], operation_count=20, iterations=3`
+  - LiDAR：`point_cloud_sizes=[5000,10000,20000,50000], iterations=3`
+说明：脚本实际运行次数/规模以 `bench/*/run.ps1|run.sh` 为准，配置文件用于分析与可视化的默认参数来源。
 
-### 基准测试参数
-- **线程配置**：可调整的线程数以进行可扩展性测试
-- **块大小**：可配置的I/O块大小用于存储分析
-- **优化级别**：编译器优化设置用于性能比较
+## 📈 运行与报告
 
-### 分析设置
-- **统计指标**：P50、P95、P99百分位数和平均值
-- **可视化选项**：图表类型、颜色和格式
-- **报告模板**：可自定义的报告生成
+### Windows（PowerShell）
+```powershell
+./run.ps1 build   # 构建 C++ 基准
+./run.ps1 run     # 运行 C++、I/O、LiDAR 全部基准
+./run.ps1 analyze # 统计聚合 + 生成图表
+./run.ps1 report  # 生成 REPORT.md
+./run.ps1 all     # 一键完成全部流程
+```
 
-## 📈 使用场景
+### Linux/macOS（Bash）
+```bash
+./run.sh build    # 构建 C++ 基准
+./run.sh run      # 运行采集（含 envinfo.sh）
+./run.sh analyze  # 统计聚合 + 生成图表
+./run.sh report   # 生成 REPORT.md
+./run.sh all      # 一键完成全部流程
+```
 
-### 自动驾驶车辆开发
-- **传感器数据处理**：分析LiDAR、摄像头和雷达数据的计算需求
-- **计算性能优化**：CPU密集型算法（感知、规划、控制）的性能分析
-- **数据存储优化**：传感器数据记录、地图加载、日志系统的I/O性能
-- **实时性能**：确保系统满足实时约束
-- **资源优化**：识别计算流水线中的瓶颈
+## 📊 分析与可视化说明
+- `analyze/parse.py`：自动识别 `bench` 及关键参数列，按 `p50/p95/p99/mean` 聚合
+- `analyze/plot.py`：输出三类图表（C++ 线程扩展性、I/O 块大小、LiDAR 点数），另含总览图 `performance_comparison.png`
+- 图像默认保存到 `report/figs/`
 
-### 性能回归测试
-- **持续集成**：自动化性能验证
-- **版本比较**：跟踪软件版本间的性能变化
-- **硬件评估**：比较不同硬件配置的性能
+## 📝 注意事项
+- LiDAR 依赖 `scikit-learn` 的 DBSCAN；请确认已安装 `scikit-learn`
+- `envinfo.sh` 当前仅在 Linux/macOS 下有效，Windows 环境信息由报告阶段直接读取现有 `out/env.txt`（如存在）
+- I/O 基准的 PowerShell 与 Bash 脚本输出列名不同，`parse.py` 会按存在列聚合
 
-### 系统分析
-- **瓶颈识别**：定位性能关键组件
-- **可扩展性分析**：了解不同负载下的系统行为
-- **资源规划**：基于性能数据规划硬件需求
-
-## 🛠️ 开发
-
-### 添加新基准测试
-1. 在`bench/`目录中创建基准测试实现
-2. 实现数据收集脚本（CSV输出格式）
-3. 添加配置参数
-4. 如需要，更新分析脚本
-
-### 扩展分析
-- **自定义指标**：添加新的统计测量
-- **可视化类型**：创建额外的图表类型
-- **报告格式**：扩展报告生成能力
-
-## 📋 路线图
-
-### 第一阶段：核心增强
-- [ ] 增强错误处理和验证
-- [ ] 配置文件管理
-- [ ] 改进跨平台兼容性
-
-### 第二阶段：高级功能
-- [ ] 实时监控能力
-- [ ] 高级统计分析
-- [ ] 性能回归检测
-
-### 第三阶段：自动驾驶车辆重点
-- [ ] ROS2集成用于传感器数据分析
-- [ ] 实时系统分析
-- [ ] 自动驾驶工作负载模拟
-
-## 🤝 贡献
-
-该项目旨在展示自动驾驶车辆系统的性能分析能力。欢迎在以下方面做出贡献：
-- 新基准测试实现
-- 分析算法改进
-- 可视化增强
-- 文档更新
-
-## 📄 许可证
-
-该项目为自动驾驶车辆性能分析演示目的而创建。
-
----
-
-**创建目的**：自动驾驶车辆性能分析师职位  
-**重点**：计算性能分析、系统分析和优化
+## 📄 许可证与用途
+该项目为自动驾驶性能分析演示用途，聚焦计算与 I/O 基准化流程与可视化呈现。

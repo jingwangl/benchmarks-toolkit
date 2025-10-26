@@ -88,8 +88,9 @@ class ReportGenerator:
             if bench == 'cpp_compute':
                 summary.append("**Computational Performance Analysis:**\n")
                 
-                # Filter for p95 data only
-                p95_data = bench_data[bench_data['level_4'] == 'p95']
+                # Filter for p95 data only (detect metric column dynamically)
+                metric_col = self._get_metric_col(bench_data)
+                p95_data = bench_data[bench_data[metric_col] == 'p95']
                 if not p95_data.empty:
                     # Find best performance
                     best_performance = p95_data.loc[p95_data['wall_ms'].idxmin()]
@@ -110,8 +111,9 @@ class ReportGenerator:
             elif bench == 'py_io':
                 summary.append("**I/O Performance Analysis:**\n")
                 
-                # Filter for p95 data only
-                p95_data = bench_data[bench_data['level_4'] == 'p95']
+                # Filter for p95 data only (detect metric column dynamically)
+                metric_col = self._get_metric_col(bench_data)
+                p95_data = bench_data[bench_data[metric_col] == 'p95']
                 if not p95_data.empty:
                     # Find most efficient block size
                     best_block = p95_data.loc[p95_data['wall_ms'].idxmin()]
@@ -151,8 +153,9 @@ class ReportGenerator:
             if bench == 'cpp_compute':
                 recommendations.append("### Computational Optimization\n")
                 
-                # Filter for p95 data only
-                p95_data = bench_data[bench_data['level_4'] == 'p95']
+                # Filter for p95 data only (detect metric column dynamically)
+                metric_col = self._get_metric_col(bench_data)
+                p95_data = bench_data[bench_data[metric_col] == 'p95']
                 if not p95_data.empty:
                     # Analyze thread scaling
                     thread_scaling = p95_data.groupby('threads')['wall_ms'].mean()
@@ -178,8 +181,9 @@ class ReportGenerator:
             elif bench == 'py_io':
                 recommendations.append("### I/O Optimization\n")
                 
-                # Filter for p95 data only
-                p95_data = bench_data[bench_data['level_4'] == 'p95']
+                # Filter for p95 data only (detect metric column dynamically)
+                metric_col = self._get_metric_col(bench_data)
+                p95_data = bench_data[bench_data[metric_col] == 'p95']
                 if not p95_data.empty:
                     # Find optimal block size
                     optimal_block = p95_data.loc[p95_data['wall_ms'].idxmin()]
@@ -307,6 +311,25 @@ class ReportGenerator:
             f.write('\n'.join(report_content))
         
         return output_file
+
+    def _get_metric_col(self, df: pd.DataFrame) -> str:
+        """Detect the column name that stores metric labels (p50/p95/p99/mean).
+        Compatible with level_4/level_5 depending on grouping depth.
+        """
+        candidate_cols = [c for c in df.columns if str(c).startswith('level_')]
+        expected = {'p50', 'p95', 'p99', 'mean'}
+        for col in candidate_cols:
+            try:
+                vals = set(df[col].dropna().astype(str).unique().tolist())
+            except Exception:
+                continue
+            if vals & expected:
+                return col
+        if 'level_5' in df.columns:
+            return 'level_5'
+        if 'level_4' in df.columns:
+            return 'level_4'
+        return 'metric'
 
 
 def main():
