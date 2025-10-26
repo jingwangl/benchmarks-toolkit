@@ -27,7 +27,7 @@ if (-not (Test-Path $out)) {
 }
 
 # Run 5 times and append results for better statistical significance
-for ($i = 1; $i -le 5; $i++) {
+for ($i = 1; $i -le 30; $i++) {
     $result = & $bin $iters $threads
     # Parse the output format: wall_ms=xxx,iterations=xxx,threads=xxx
     if ($result -match "wall_ms=([\d.]+)") {

@@ -128,7 +128,8 @@ class PerformanceAnalyzer:
             List of column names to use for grouping
         """
         grouping_columns = []
-        potential_groups = ['config', 'threads', 'block_kb', 'optimization_level']
+        # Include common knobs across benches; add 'points' for LiDAR to split stats by cloud size
+        potential_groups = ['config', 'threads', 'block_kb', 'optimization_level', 'points']
         
         for col in potential_groups:
             if col in df.columns:

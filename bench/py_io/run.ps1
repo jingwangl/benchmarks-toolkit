@@ -4,10 +4,10 @@ New-Item -ItemType Directory -Force -Path (Split-Path $out) | Out-Null
 "bench,block_kb,wall_ms,total_mb,blocks" | Out-File -FilePath $out -Encoding UTF8
 
 $blockSizes = @(4, 64, 512)
-$totalMb = 1  # Fixed total data size: 1MB
+$totalMb = 4  # Fixed total data size: 32MB
 
 foreach ($kb in $blockSizes) {
-    for ($i = 1; $i -le 3; $i++) {
+    for ($i = 1; $i -le 30; $i++) {
         $result = python io_bench.py --block_kb $kb --total_mb $totalMb --mode fixed_total 2>$null
         if ($result) {
             $parts = $result -split ','

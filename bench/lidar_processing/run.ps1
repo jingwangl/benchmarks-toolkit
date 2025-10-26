@@ -12,7 +12,7 @@ Write-Host "Running LiDAR processing benchmark tests..."
 # Test different point cloud sizes (simulating different LiDAR resolutions)
 # Optimized for home computer compatibility
 $pointCounts = @(5000, 10000, 20000, 50000)
-$iterations = 3
+$iterations = 30
 
 foreach ($points in $pointCounts) {
     Write-Host "Testing point cloud with $points points..."

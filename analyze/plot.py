@@ -94,11 +94,14 @@ class PerformanceVisualizer:
         optimization_levels = df['config'].unique()
         color_idx = 0
         
+        # Detect metric column name dynamically (level_4 vs level_5, etc.)
+        metric_col = self._get_metric_col(df)
+
         for opt_level in optimization_levels:
             opt_data = df[df['config'] == opt_level]
             
             # Filter for p95 data only
-            p95_data = opt_data[opt_data['level_4'] == 'p95']
+            p95_data = opt_data[opt_data[metric_col] == 'p95']
             
             if p95_data.empty:
                 continue
@@ -136,7 +139,7 @@ class PerformanceVisualizer:
         ax.legend(loc='best', frameon=True, fancybox=False, shadow=False)
         
         # Add performance insights as text
-        p95_data_all = df[df['level_4'] == 'p95']
+        p95_data_all = df[df[metric_col] == 'p95']
         if not p95_data_all.empty:
             min_latency = p95_data_all['wall_ms'].min()
             max_latency = p95_data_all['wall_ms'].max()
@@ -172,8 +175,9 @@ class PerformanceVisualizer:
         """
         fig, ax = plt.subplots(figsize=self.figure_size)
         
-        # Filter for p95 data only
-        p95_data = df[df['level_4'] == 'p95']
+        # Detect metric column and filter for p95 data only
+        metric_col = self._get_metric_col(df)
+        p95_data = df[df[metric_col] == 'p95']
         
         if p95_data.empty:
             print("Warning: No p95 data found for py_io benchmark")
@@ -264,7 +268,8 @@ class PerformanceVisualizer:
         if 'cpp_compute' in benchmarks and ax_idx < len(axes):
             cpp_data = df[df['bench'] == 'cpp_compute']
             if not cpp_data.empty:
-                cpp_p95_data = cpp_data[cpp_data['level_4'] == 'p95']
+                metric_col = self._get_metric_col(cpp_data)
+                cpp_p95_data = cpp_data[cpp_data[metric_col] == 'p95']
                 if not cpp_p95_data.empty:
                     optimization_levels = cpp_p95_data['config'].unique()
                     color_idx = 0
@@ -289,7 +294,8 @@ class PerformanceVisualizer:
         if 'py_io' in benchmarks and ax_idx < len(axes):
             py_data = df[df['bench'] == 'py_io']
             if not py_data.empty:
-                py_p95_data = py_data[py_data['level_4'] == 'p95']
+                metric_col = self._get_metric_col(py_data)
+                py_p95_data = py_data[py_data[metric_col] == 'p95']
                 if not py_p95_data.empty:
                     py_p95_sorted = py_p95_data.sort_values('block_kb')
                     bars = axes[ax_idx].bar(range(len(py_p95_sorted)), py_p95_sorted['wall_ms'],
@@ -309,31 +315,40 @@ class PerformanceVisualizer:
             raw_data_path = "out/lidar_processing_raw.csv"
             if os.path.exists(raw_data_path):
                 try:
-                    raw_df = pd.read_csv(raw_data_path)
-                    point_sizes = sorted(raw_df['points'].unique())
-                    
-                    # Calculate mean processing time for each point cloud size
-                    mean_times = []
-                    for size in point_sizes:
-                        size_data = raw_df[raw_df['points'] == size]['wall_ms']
-                        mean_times.append(size_data.mean())
-                    
-                    # Create line plot showing performance vs point cloud size
-                    x_pos = range(len(point_sizes))
-                    axes[ax_idx].plot(x_pos, mean_times, 
-                                     color=self.colors['accent'], marker='o', 
-                                     linewidth=2, markersize=6)
-                    
-                    axes[ax_idx].set_xlabel('Point Cloud Size')
-                    axes[ax_idx].set_ylabel('Processing Time (ms)')
-                    axes[ax_idx].set_title('LiDAR Processing Performance')
-                    axes[ax_idx].set_xticks(x_pos)
-                    axes[ax_idx].set_xticklabels([f'{size:,}' for size in point_sizes])
+                    # Prefer aggregated p95 if available
+                    lidar_df = df[df['bench'] == 'lidar_processing']
+                    metric_col = self._get_metric_col(lidar_df)
+                    p95_df = lidar_df[(lidar_df[metric_col] == 'p95') & (lidar_df['points'].notna())]
+                    if not p95_df.empty:
+                        p95_df = p95_df.sort_values('points')
+                        x_pos = range(len(p95_df))
+                        axes[ax_idx].plot(x_pos, p95_df['wall_ms'],
+                                          color=self.colors['accent'], marker='o',
+                                          linewidth=2, markersize=6)
+                        axes[ax_idx].set_xticks(x_pos)
+                        axes[ax_idx].set_xticklabels([f"{int(pt):,}" for pt in p95_df['points']])
+                    else:
+                        # Fallback to raw p95 computation
+                        raw_df = pd.read_csv(raw_data_path)
+                        point_sizes = sorted(raw_df['points'].unique())
+                        p95_times = []
+                        for size in point_sizes:
+                            series = raw_df[raw_df['points'] == size]['wall_ms']
+                            p95_times.append(np.percentile(series.dropna(), 95))
+                        x_pos = range(len(point_sizes))
+                        axes[ax_idx].plot(x_pos, p95_times, color=self.colors['accent'],
+                                          marker='o', linewidth=2, markersize=6)
+                        axes[ax_idx].set_xticks(x_pos)
+                        axes[ax_idx].set_xticklabels([f'{size:,}' for size in point_sizes])
+
+                    axes[ax_idx].set_xlabel('LiDAR Processing Performance')
+                    axes[ax_idx].set_ylabel('P95 Latency (ms)')
+                    axes[ax_idx].set_title('LiDAR P95 vs Point Cloud Size')
                     axes[ax_idx].grid(True, alpha=0.3)
                 except Exception as e:
                     print(f"Warning: Could not load raw LiDAR data: {e}")
-                    # Fallback to aggregated metrics
-                    self._create_fallback_lidar_subplot(axes[ax_idx], df[df['bench'] == 'lidar_processing'])
+                # Fallback to aggregated metrics
+                self._create_fallback_lidar_subplot(axes[ax_idx], df[df['bench'] == 'lidar_processing'])
             else:
                 # Fallback to aggregated metrics when raw data not available
                 self._create_fallback_lidar_subplot(axes[ax_idx], df[df['bench'] == 'lidar_processing'])
@@ -353,85 +368,90 @@ class PerformanceVisualizer:
         return filepath
     
     def create_lidar_processing_plot(self, df: pd.DataFrame, output_dir: str) -> str:
-        """Create visualization for LiDAR processing benchmarks showing performance vs point cloud size.
-        
-        Args:
-            df: DataFrame with lidar_processing data
-            output_dir: Directory to save the plot
-            
-        Returns:
-            Path to saved plot file
+        """Visualization for LiDAR: use P95 vs point cloud size (preferred from aggregated metrics).
+        Falls back to computing P95 from raw if aggregated not available.
         """
-        # We need to load the raw data to get point cloud sizes
-        raw_data_path = "out/lidar_processing_raw.csv"
-        if not os.path.exists(raw_data_path):
-            print("Warning: Raw LiDAR data not found, creating fallback plot")
-            return self._create_fallback_lidar_plot(df, output_dir)
-        
-        # Load raw data to get point cloud sizes
-        raw_df = pd.read_csv(raw_data_path)
-        
-        # Group by point cloud size and calculate statistics
-        point_sizes = sorted(raw_df['points'].unique())
-        
+        metric_col = self._get_metric_col(df)
         fig, ax = plt.subplots(figsize=self.figure_size)
-        
-        # Calculate mean processing time for each point cloud size
-        mean_times = []
-        std_times = []
-        
-        for size in point_sizes:
-            size_data = raw_df[raw_df['points'] == size]['wall_ms']
-            mean_times.append(size_data.mean())
-            std_times.append(size_data.std())
-        
-        # Create line plot with error bars
-        x_pos = range(len(point_sizes))
-        ax.errorbar(x_pos, mean_times, yerr=std_times, 
-                   color=self.colors['primary'], marker='o', linewidth=2, 
-                   markersize=8, capsize=5, capthick=2)
-        
-        # Add value labels on points
-        for i, (mean_time, std_time) in enumerate(zip(mean_times, std_times)):
-            ax.text(i, mean_time + std_time + max(mean_times)*0.02,
-                   f'{mean_time:.1f}±{std_time:.1f}ms', 
-                   ha='center', va='bottom', fontweight='bold', fontsize=9)
-        
-        # Customize plot appearance
-        ax.set_xlabel('Point Cloud Size', fontweight='bold')
-        ax.set_ylabel('Processing Time (ms)', fontweight='bold')
-        ax.set_title('LiDAR Processing Performance vs Point Cloud Size\nOptimized DBSCAN Algorithm', 
-                    fontweight='bold', pad=20)
-        
-        # Set x-axis labels
-        ax.set_xticks(x_pos)
-        ax.set_xticklabels([f'{size:,}' for size in point_sizes])
-        
-        # Set axis properties
-        ax.set_ylim(bottom=0)
-        ax.grid(True, alpha=0.3, linestyle='-', linewidth=0.5)
-        
-        # Add performance insights
-        min_time = min(mean_times)
-        max_time = max(mean_times)
-        speedup_ratio = max_time / min_time
-        
-        ax.text(0.02, 0.98, f'Performance Range: {min_time:.1f}ms - {max_time:.1f}ms\n'
-                           f'Speedup Ratio: {speedup_ratio:.1f}x\n'
-                           f'Total Points Tested: {sum(point_sizes):,}',
-                transform=ax.transAxes, fontsize=9, verticalalignment='top',
-                bbox=dict(boxstyle='round', facecolor='lightgreen', alpha=0.8))
-        
-        plt.tight_layout()
-        
-        # Save plot
-        filename = 'lidar_processing_p95.png'
-        filepath = os.path.join(output_dir, filename)
-        plt.savefig(filepath, dpi=self.dpi, bbox_inches='tight',
-                   facecolor='white', edgecolor='none')
-        plt.close()
-        
-        return filepath
+
+        p95_df = df[(df[metric_col] == 'p95') & (df['points'].notna())]
+        if not p95_df.empty:
+            p95_df = p95_df.sort_values('points')
+            points = p95_df['points'].astype(int).values
+            p95_values = p95_df['wall_ms'].values
+
+            x_pos = range(len(points))
+            ax.plot(x_pos, p95_values,
+                    color=self.colors['primary'], marker='o', linewidth=2,
+                    markersize=8)
+
+            for i, val in enumerate(p95_values):
+                ax.text(i, val + max(p95_values)*0.02,
+                        f'{val:.1f}ms', ha='center', va='bottom',
+                        fontweight='bold', fontsize=9)
+
+            ax.set_xlabel('Point Cloud Size', fontweight='bold')
+            ax.set_ylabel('P95 Latency (ms)', fontweight='bold')
+            ax.set_title('LiDAR P95 vs Point Cloud Size', fontweight='bold', pad=20)
+            ax.set_xticks(x_pos)
+            ax.set_xticklabels([f'{pt:,}' for pt in points])
+            ax.set_ylim(bottom=0)
+            ax.grid(True, alpha=0.3, linestyle='-', linewidth=0.5)
+
+            min_time = p95_df['wall_ms'].min()
+            max_time = p95_df['wall_ms'].max()
+            ratio = max_time / max(min_time, 1e-9)
+            ax.text(0.02, 0.98, f'Range: {min_time:.1f}–{max_time:.1f}ms\n'
+                               f'Ratio: {ratio:.1f}x',
+                    transform=ax.transAxes, fontsize=9, va='top',
+                    bbox=dict(boxstyle='round', facecolor='lightgreen', alpha=0.8))
+
+            plt.tight_layout()
+            filepath = os.path.join(output_dir, 'lidar_processing_p95.png')
+            plt.savefig(filepath, dpi=self.dpi, bbox_inches='tight',
+                        facecolor='white', edgecolor='none')
+            plt.close()
+            return filepath
+
+        # Fallback: compute P95 from raw
+        raw_data_path = "out/lidar_processing_raw.csv"
+        if os.path.exists(raw_data_path):
+            try:
+                raw_df = pd.read_csv(raw_data_path)
+                if 'points' in raw_df.columns and 'wall_ms' in raw_df.columns:
+                    pts = sorted(raw_df['points'].unique())
+                    p95_values = []
+                    for size in pts:
+                        series = raw_df[raw_df['points'] == size]['wall_ms']
+                        p95_values.append(np.percentile(series.dropna(), 95))
+
+                    x_pos = range(len(pts))
+                    ax.plot(x_pos, p95_values, color=self.colors['primary'],
+                            marker='o', linewidth=2, markersize=8)
+                    for i, val in enumerate(p95_values):
+                        ax.text(i, val + max(p95_values)*0.02, f'{val:.1f}ms',
+                                ha='center', va='bottom', fontweight='bold', fontsize=9)
+
+                    ax.set_xlabel('Point Cloud Size', fontweight='bold')
+                    ax.set_ylabel('P95 Latency (ms)', fontweight='bold')
+                    ax.set_title('LiDAR P95 vs Point Cloud Size (raw computed)',
+                                 fontweight='bold', pad=20)
+                    ax.set_xticks(x_pos)
+                    ax.set_xticklabels([f'{int(size):,}' for size in pts])
+                    ax.set_ylim(bottom=0)
+                    ax.grid(True, alpha=0.3, linestyle='-', linewidth=0.5)
+                    plt.tight_layout()
+                    filepath = os.path.join(output_dir, 'lidar_processing_p95.png')
+                    plt.savefig(filepath, dpi=self.dpi, bbox_inches='tight',
+                                facecolor='white', edgecolor='none')
+                    plt.close()
+                    return filepath
+            except Exception as e:
+                print(f"Warning: Could not compute P95 from raw LiDAR data: {e}")
+
+        # Last resort
+        print("Warning: No P95 data available for LiDAR; creating fallback plot")
+        return self._create_fallback_lidar_plot(df, output_dir)
     
     def _create_fallback_lidar_plot(self, df: pd.DataFrame, output_dir: str) -> str:
         """Create fallback LiDAR plot when raw data is not available."""
@@ -442,8 +462,9 @@ class PerformanceVisualizer:
         metric_values = []
         metric_labels = []
         
+        metric_col = self._get_metric_col(df)
         for metric in metrics:
-            metric_data = df[df['level_4'] == metric]
+            metric_data = df[df[metric_col] == metric]
             if not metric_data.empty:
                 metric_values.append(metric_data['wall_ms'].iloc[0])
                 metric_labels.append(metric.upper())
@@ -460,7 +481,7 @@ class PerformanceVisualizer:
             
             # Customize plot appearance
             ax.set_xlabel('Performance Metrics', fontweight='bold')
-            ax.set_ylabel('Processing Time (ms)', fontweight='bold')
+            ax.set_ylabel('P95 Latency (ms)', fontweight='bold')
             ax.set_title('LiDAR Point Cloud Processing Performance\n(Aggregated Data)', 
                         fontweight='bold', pad=20)
             
@@ -490,29 +511,41 @@ class PerformanceVisualizer:
         return filepath
     
     def _create_fallback_lidar_subplot(self, ax, lidar_data: pd.DataFrame) -> None:
-        """Create fallback LiDAR subplot when raw data is not available."""
-        if not lidar_data.empty:
-            # Create a simple bar chart for LiDAR metrics
-            metrics = ['p50', 'p95', 'p99', 'mean']
-            metric_values = []
-            metric_labels = []
-            
-            for metric in metrics:
-                metric_data = lidar_data[lidar_data['level_4'] == metric]
-                if not metric_data.empty:
-                    metric_values.append(metric_data['wall_ms'].iloc[0])
-                    metric_labels.append(metric.upper())
-            
-            if metric_values:
-                bars = ax.bar(range(len(metric_values)), metric_values,
-                             color=self.colors['accent'], alpha=0.8)
-                
-                ax.set_xlabel('Performance Metrics')
-                ax.set_ylabel('Processing Time (ms)')
-                ax.set_title('LiDAR Processing Performance')
-                ax.set_xticks(range(len(metric_labels)))
-                ax.set_xticklabels(metric_labels)
-                ax.grid(True, alpha=0.3, axis='y')
+        """Fallback LiDAR subplot: prefer P95 vs points if available; else simple bars."""
+        if lidar_data.empty:
+            return
+
+        metric_col = self._get_metric_col(lidar_data)
+        p95_df = lidar_data[(lidar_data[metric_col] == 'p95') & (lidar_data['points'].notna())]
+        if not p95_df.empty:
+            p95_df = p95_df.sort_values('points')
+            x_pos = range(len(p95_df))
+            ax.plot(x_pos, p95_df['wall_ms'], color=self.colors['accent'], marker='o', linewidth=2)
+            ax.set_xlabel('Point Cloud Size')
+            ax.set_ylabel('P95 Latency (ms)')
+            ax.set_title('LiDAR P95 vs Point Cloud Size')
+            ax.set_xticks(x_pos)
+            ax.set_xticklabels([f"{int(pt):,}" for pt in p95_df['points']])
+            ax.grid(True, alpha=0.3)
+            return
+
+        # Simple aggregated bars as last resort
+        metrics = ['p50', 'p95', 'p99', 'mean']
+        metric_values = []
+        metric_labels = []
+        for metric in metrics:
+            metric_data = lidar_data[lidar_data[metric_col] == metric]
+            if not metric_data.empty:
+                metric_values.append(metric_data['wall_ms'].iloc[0])
+                metric_labels.append(metric.upper())
+        if metric_values:
+            ax.bar(range(len(metric_values)), metric_values, color=self.colors['accent'], alpha=0.8)
+            ax.set_xlabel('Performance Metrics')
+            ax.set_ylabel('P95 Latency (ms)')
+            ax.set_title('LiDAR Processing Performance')
+            ax.set_xticks(range(len(metric_labels)))
+            ax.set_xticklabels(metric_labels)
+            ax.grid(True, alpha=0.3, axis='y')
     
     def generate_visualizations(self, df: pd.DataFrame, output_dir: str) -> List[str]:
         """Generate all performance visualizations.
@@ -551,6 +584,28 @@ class PerformanceVisualizer:
         generated_plots.append(comparison_path)
         
         return generated_plots
+
+    def _get_metric_col(self, df: pd.DataFrame) -> str:
+        """Detect the column name that stores metric labels (p50/p95/p99/mean).
+        Compatible with level_4/level_5 depending on grouping depth.
+        """
+        # Prefer columns named like level_*
+        candidate_cols = [c for c in df.columns if str(c).startswith('level_')]
+        expected = {'p50', 'p95', 'p99', 'mean'}
+        for col in candidate_cols:
+            try:
+                vals = set(df[col].dropna().astype(str).unique().tolist())
+            except Exception:
+                continue
+            if vals & expected:
+                return col
+        # Fallback to common defaults
+        if 'level_5' in df.columns:
+            return 'level_5'
+        if 'level_4' in df.columns:
+            return 'level_4'
+        # Last resort: try a column literally named 'metric'
+        return 'metric'
 
 
 def main():
